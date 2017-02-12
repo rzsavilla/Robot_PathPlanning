@@ -10,16 +10,11 @@ void MapReader::placeLine(Point start, Point end,Grid* grid)
 	Point pDist = Point(end.x - start.x, end.y - start.y);
 	int distance = ceil(sqrt(pow(pDist.x, 2) + pow(pDist.y,2)));
 
-	//Start point
-	//int iIndex = getIndex(start.x, start.y, grid->uiWidth);
-
 	Point pDrawDist = Point(0,0);	//Distance on the line to draw
 
-	//Find point along the line at distance d
-	int iD = 0;
-
-	//http://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
-
+	/* Formula, finding point a long a line
+	http://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
+	*/
 	float fMag;	//magnitude of distance vector
 	fMag = sqrt((pDist.x * pDist.x) + (pDist.y * pDist.y));
 	Point unitNormal = Point(pDist.x / fMag, pDist.y / fMag);
@@ -38,9 +33,8 @@ void MapReader::placeLine(Point start, Point end,Grid* grid)
 	bool bX = false;
 	bool bY = false;
 	bool b = false;
-	std::cout << "Placing Line: x:" << start.x << " y:" << start.y << " x:" << end.x << " y:" << end.y << "\n";
+	//std::cout << "Placing Line: x:" << start.x << " y:" << start.y << " x:" << end.x << " y:" << end.y << "\n";
 	while (!b) {
-		std::cout << "Placing\n";
 		if (!bX) p.x = start.x + dX;
 		if (!bY) p.y = start.y + dY;
 		//std::cout << "x:" << p.x << " y:" << p.y << "\n"; 
@@ -54,7 +48,7 @@ void MapReader::placeLine(Point start, Point end,Grid* grid)
 			grid->vCells.at(iIndex).iState = 1;
 		}
 
-		uX = (pDist.x / fMag);
+		uX = (pDist.x / fMag);	//Unit normal
 		uY = (pDist.y / fMag);
 		if (uX > 0) uX = ceil(uX);	//Round up
 		else uX = floor(uX);		//Round down
@@ -73,13 +67,8 @@ void MapReader::placeLine(Point start, Point end,Grid* grid)
 		bX = p.x == end.x;
 		bY = p.y == end.y;
 		b = bX && bY;
-
-		//grid->draw();
-		//std::cout << "\n";
 	} 
 	std::cout << "Line placed: x:" << start.x << " y:" << start.y << " x:" << end.x << " y:" << end.y << "\n";
-	//grid->draw();
-	//system("pause");
 }
 
 void MapReader::placeLine(Point start, Point end, Grid* grid, Point minOffset)
@@ -135,7 +124,7 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 	file.close();
 }
 
-bool MapReader::readIntoGrid(std::string filename)
+bool MapReader::readIntoGrid(std::string filename, Grid* grid)
 {
 	FILE* myFile;
 
@@ -149,8 +138,6 @@ bool MapReader::readIntoGrid(std::string filename)
 	int iMinHeight;
 	int iMaxWidht;
 	int iMaxHeight;
-
-	Grid grid;
 
 	//Open the file
 	fopen_s(&myFile, cFilename, "r");
@@ -187,7 +174,7 @@ bool MapReader::readIntoGrid(std::string filename)
 		}
 	}
 
-	int iReduce = 13;
+	int iScale = 10;
 
 	int iPadding = 10;
 
@@ -196,15 +183,15 @@ bool MapReader::readIntoGrid(std::string filename)
 	iMaxWidht += iPadding;
 	iMaxHeight += iPadding;
 
-	iMinWidht /= iReduce;
-	iMinHeight /= iReduce;
-	iMaxWidht /= iReduce;
-	iMaxHeight /= iReduce;
+	iMinWidht /= iScale;
+	iMinHeight /= iScale;
+	iMaxWidht /= iScale;
+	iMaxHeight /= iScale;
 
-	grid.uiWidth = abs(iMaxWidht) + abs(iMinWidht);
-	grid.uiHeight = abs(iMaxHeight) + abs(iMinHeight);
+	grid->uiWidth = abs(iMaxWidht) + abs(iMinWidht);
+	grid->uiHeight = abs(iMaxHeight) + abs(iMinHeight);
 
-	int iSize = (grid.uiWidth * grid.uiHeight);
+	int iSize = (grid->uiWidth * grid->uiHeight);
 
 	int iWidthOffset = iMinWidht;
 	int iHeightOffset = iMinHeight;
@@ -213,23 +200,18 @@ bool MapReader::readIntoGrid(std::string filename)
 	Cell emptyCell;
 	emptyCell.iState = 0;
 	emptyCell.ptrParent = NULL;
-	std::cout << "Filling grid\n";
+	//std::cout << "Filling grid\n";
 	for (int i = 0; i < iSize; i++) {
-		grid.vCells.push_back(emptyCell);
+		grid->vCells.push_back(emptyCell);
 	}
 
-	//vLines.push_back(Line(0, 0, 9, 9));
-	//vLines.push_back(Line(0, 5, 9, 5));
+	//Place lines into grid map
 	for (int i = 0; i < vLines.size(); i++) {
-		vLines.at(i).start.x /= iReduce;
-		vLines.at(i).start.y /= iReduce;
-		vLines.at(i).end.x /= iReduce;
-		vLines.at(i).end.y /= iReduce;
-		placeLine(vLines.at(i), &grid, Point(iMinWidht, iMinHeight));
+		vLines.at(i).start.x /= iScale;
+		vLines.at(i).start.y /= iScale;
+		vLines.at(i).end.x /= iScale;
+		vLines.at(i).end.y /= iScale;
+		placeLine(vLines.at(i), grid, Point(iMinWidht, iMinHeight));
 	}
-	std::cout << "Saving to txt file";
-	std::cout << "Saving grid map\n";
-	saveGrid(&grid, "gridmap.txt");
-	//grid.draw();
 	return false;
 }

@@ -3,6 +3,7 @@
 #include "wander.h"
 #include "avoid.h"
 #include "follow.h"
+#include "MapReader.h"
 
 int main(int argc, char **argv)
 {
@@ -65,6 +66,25 @@ int main(int argc, char **argv)
 	Avoid avoid;
 	follow follow;
 
+	//////////	Generate Grid Map	///////////
+	MapReader mapReader;		//Create grid using map file
+	std::string sMapResLoc = "resources/maps/";
+	std::string sGridResLoc = "resources/grids/";
+	std::string sMapName = "Mine";
+	Grid grid_map;
+	//Check if grid file for map has already been created
+	std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
+	if (FILE* file = fopen(sGridFile.c_str(), "r")) {
+		std::cout << "Grid has already been generated\n";
+	}
+	else {
+		std::cout << "Generating Grid\n";
+		std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+		mapReader.readIntoGrid(sMapFile, &grid_map);
+		mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
+	}
+
+	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
 	robot.addAction(&bumpers, 75);
 	robot.addAction(&avoid, 50);

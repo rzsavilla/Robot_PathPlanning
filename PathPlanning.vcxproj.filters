@@ -1,3 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\avoid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\follow.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wander.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\odometry.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wanderAndAvoid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapReader.cpp">
+      <Filter>Source\PathPlanner</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\avoid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\follow.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\odometry.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wander.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wanderAndAvoid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MapReader.h">
+      <Filter>Include\PathPlanner</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{d8125746-93f5-406c-af4d-95b52408eb2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{29401724-0d5c-4167-9a47-8a59111c125f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\PathPlanner">
+      <UniqueIdentifier>{bfe42654-ab9d-45db-9b03-4d9078f7ca84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\PathPlanner">
+      <UniqueIdentifier>{d867fbdb-62df-4d55-9545-281490a52bc6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

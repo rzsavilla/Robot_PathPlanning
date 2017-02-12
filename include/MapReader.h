@@ -86,5 +86,5 @@ private:
 public:
 	MapReader();
 	void saveGrid(Grid* grid, std::string file);
-	bool readIntoGrid(std::string filename);
+	bool readIntoGrid(std::string filename, Grid* grid);
 };
