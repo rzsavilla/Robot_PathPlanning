@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{72f4b511-aac1-43cc-9bb5-6739e32356ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{434d107e-209d-43bc-8f5f-b11c590bbdea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Robot">
+      <UniqueIdentifier>{6cd8cf88-32dd-4ff9-965e-a6d63faaa785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Robot">
+      <UniqueIdentifier>{aef3dd84-a266-45bd-b81a-5fc00ed6c4f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Pathfinder">
+      <UniqueIdentifier>{06e53f8e-6422-4a5b-85d3-d157fb531587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Pathfinder">
+      <UniqueIdentifier>{77085650-c075-4862-ac13-60b9b6909df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\MapReader">
+      <UniqueIdentifier>{c22a5de8-18eb-4537-967e-6453ca695056}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\MapReader">
+      <UniqueIdentifier>{2bc33101-47dc-4fac-b62d-ec4dba4cfd20}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\wanderAndAvoid.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\avoid.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\follow.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\odometry.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wander.cpp">
+      <Filter>src\Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapReader.cpp">
+      <Filter>src\MapReader</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\wanderAndAvoid.h">
+      <Filter>include\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\avoid.h">
+      <Filter>include\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\follow.h">
+      <Filter>include\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\odometry.h">
+      <Filter>include\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\wander.h">
+      <Filter>include\Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MapReader.h">
+      <Filter>include\MapReader</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
