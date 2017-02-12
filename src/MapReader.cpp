@@ -158,6 +158,19 @@ bool MapReader::readIntoGrid(std::string filename, Grid* grid)
 				sscanf_s(line, "%*s %i %i", &iMaxWidht, &iMaxHeight);
 				std::cout << "Found\n";
 			}
+			else if (!(strcmp(caType, "Cairn:"))) {
+				char ca[100];
+				Point p;
+				float th;
+				char s[20];
+				sscanf_s(line, "%*s %s %i %i %i",s,20, &p.x, &p.y, &th);
+				if (!(strcmp(s, "Goal"))) {
+					m_pGoalPos = p;
+				}
+				else if (!(strcmp(s, "RobotHome"))) {
+					m_pStartPos = p;
+				}
+			}
 			else if (!(strcmp(caType, "LINES"))) {
 				//Read lines
 				sscanf_s(line, "%s ", caType, 20);

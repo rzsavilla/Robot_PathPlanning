@@ -76,6 +76,11 @@ int main(int argc, char **argv)
 	std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
 	if (FILE* file = fopen(sGridFile.c_str(), "r")) {
 		std::cout << "Grid has already been generated\n";
+
+		std::cout << "Generating Grid\n";
+		std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+		mapReader.readIntoGrid(sMapFile, &grid_map);
+		mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
 	}
 	else {
 		std::cout << "Generating Grid\n";
@@ -87,9 +92,9 @@ int main(int argc, char **argv)
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
 	robot.addAction(&bumpers, 75);
-	robot.addAction(&avoid, 50);
-	//robot.addAction(&follow, 40);
-	robot.addAction(&wander, 1);
+	//robot.addAction(&avoid, 50);
+	robot.addAction(&follow, 40);
+	//robot.addAction(&wander, 1);
   
 	// wait for robot task loop to end before exiting the program
 	robot.waitForRunExit();

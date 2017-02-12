@@ -83,6 +83,10 @@ private:
 	void placeLine(Point start, Point end, Grid* grid);
 	void placeLine(Point start, Point end, Grid* grid, Point minOffset);
 	void placeLine(Line line, Grid* grid, Point minOffset);
+
+	Point m_pStartPos;
+	Point m_pGoalPos;
+	float m_fTH;
 public:
 	MapReader();
 	void saveGrid(Grid* grid, std::string file);
