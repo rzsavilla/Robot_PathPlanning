@@ -22,6 +22,12 @@
     <ClCompile Include="src\MapReader.cpp">
       <Filter>Source\PathPlanner</Filter>
     </ClCompile>
+    <ClCompile Include="src\AStar.cpp">
+      <Filter>Source\PathPlanner</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Node.cpp">
+      <Filter>Source\PathPlanner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\avoid.h">
@@ -40,6 +46,15 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="include\MapReader.h">
+      <Filter>Include\PathPlanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AStar.h">
+      <Filter>Include\PathPlanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Node.h">
+      <Filter>Include\PathPlanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Grid.h">
       <Filter>Include\PathPlanner</Filter>
     </ClInclude>
   </ItemGroup>

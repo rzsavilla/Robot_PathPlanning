@@ -11,18 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AStar.cpp" />
     <ClCompile Include="src\avoid.cpp" />
     <ClCompile Include="src\follow.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MapReader.cpp" />
+    <ClCompile Include="src\Node.cpp" />
     <ClCompile Include="src\odometry.cpp" />
     <ClCompile Include="src\wander.cpp" />
     <ClCompile Include="src\wanderAndAvoid.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AStar.h" />
     <ClInclude Include="include\avoid.h" />
     <ClInclude Include="include\follow.h" />
+    <ClInclude Include="include\Grid.h" />
     <ClInclude Include="include\MapReader.h" />
+    <ClInclude Include="include\Node.h" />
     <ClInclude Include="include\odometry.h" />
     <ClInclude Include="include\wander.h" />
     <ClInclude Include="include\wanderAndAvoid.h" />

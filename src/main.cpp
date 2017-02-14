@@ -4,9 +4,45 @@
 #include "avoid.h"
 #include "follow.h"
 #include "MapReader.h"
+#include "AStar.h"
 
 int main(int argc, char **argv)
 {
+	//////////	Generate Grid Map	///////////
+	MapReader mapReader;		//Create grid using map file
+	std::string sMapResLoc = "resources/maps/";
+	std::string sGridResLoc = "resources/grids/";
+	std::string sMapName = "mymap";
+	Grid grid_map;
+	//Check if grid file for map has already been created
+	//std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
+	//if (FILE* file = fopen(sGridFile.c_str(), "r")) {
+	//	std::cout << "Grid has already been generated\n";
+	//	std::cout << "Generating Grid\n";
+	//	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+	//	mapReader.readIntoGrid(sMapFile, &grid_map);
+	//	mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
+	//}
+	//else {
+	//	std::cout << "Generating Grid\n";
+	//	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+	//	mapReader.readIntoGrid(sMapFile, &grid_map);
+	//	mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
+	//}
+
+	grid_map.uiWidth = 10;
+	grid_map.uiHeight = 10;
+	for (int y = 0; y < 10; y++) {
+		for (int x = 0; x < 10; x++) {
+			grid_map.vNodes.push_back(std::make_shared<Node>(getIndex(x,y,10), 0, Point(x,y)));
+		}
+	}
+
+	AStar pathFinder;
+	pathFinder.addTraversable(1,0);
+	std::vector<int> viPath;
+	pathFinder.getPath(Point(0,0),Point(9,9),&grid_map,&viPath);
+
 	Aria::init();
 	ArArgumentParser argParser(&argc, argv);
 	argParser.loadDefaultArguments();
@@ -65,29 +101,6 @@ int main(int argc, char **argv)
 	Wander wander;
 	Avoid avoid;
 	follow follow;
-
-	//////////	Generate Grid Map	///////////
-	MapReader mapReader;		//Create grid using map file
-	std::string sMapResLoc = "resources/maps/";
-	std::string sGridResLoc = "resources/grids/";
-	std::string sMapName = "Mine";
-	Grid grid_map;
-	//Check if grid file for map has already been created
-	std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
-	if (FILE* file = fopen(sGridFile.c_str(), "r")) {
-		std::cout << "Grid has already been generated\n";
-
-		std::cout << "Generating Grid\n";
-		std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-		mapReader.readIntoGrid(sMapFile, &grid_map);
-		mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
-	}
-	else {
-		std::cout << "Generating Grid\n";
-		std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-		mapReader.readIntoGrid(sMapFile, &grid_map);
-		mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
-	}
 
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);

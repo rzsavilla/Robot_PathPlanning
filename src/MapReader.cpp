@@ -1,8 +1,10 @@
 #include "MapReader.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <fstream>
+
 
 void MapReader::placeLine(Point start, Point end,Grid* grid)
 {
@@ -37,16 +39,16 @@ void MapReader::placeLine(Point start, Point end,Grid* grid)
 	while (!b) {
 		if (!bX) p.x = start.x + dX;
 		if (!bY) p.y = start.y + dY;
-		//std::cout << "x:" << p.x << " y:" << p.y << "\n"; 
+		std::cout << "x:" << p.x << " y:" << p.y << "\n"; 
 
-		iIndex = getIndex(p.x, p.y, grid->uiWidth);
-		if (iIndex >= grid->vCells.size()) {
-			iTargetDist = distance;
-			continue;
-		}
-		else {
-			grid->vCells.at(iIndex).iState = 1;
-		}
+		//iIndex = getIndex(p.x, p.y, grid->uiWidth);
+		//if (iIndex == grid->vNodes.size()) {
+		//	iTargetDist = distance;
+		//	continue;
+		//}
+		//else {
+		//	grid->vNodes.at(iIndex)->m_iState = 1;
+		//}
 
 		uX = (pDist.x / fMag);	//Unit normal
 		uY = (pDist.y / fMag);
@@ -96,6 +98,7 @@ MapReader::MapReader()
 
 void MapReader::saveGrid(Grid * grid, std::string filename)
 {
+	std::cout << "Saving Grid Map: " << filename << "\n";
 	std::ofstream file;
 	file.open(filename);
 	if (!file.is_open()) {
@@ -105,7 +108,7 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 
 	for (int y = 0; y < grid->uiHeight; y++) {
 		for (int x = 0; x < grid->uiWidth; x++) {
-			int i = grid->vCells.at(getIndex(x, y, grid->uiWidth)).iState;
+			int i = grid->vNodes.at(getIndex(x, y, grid->uiWidth))->m_iState;
 			switch (i)
 			{
 			case 0:
@@ -126,6 +129,9 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 
 bool MapReader::readIntoGrid(std::string filename, Grid* grid)
 {
+	int iScale = 10;
+	int iPadding = 10;
+
 	FILE* myFile;
 
 	std::string sFileLocation = filename;
@@ -152,11 +158,9 @@ bool MapReader::readIntoGrid(std::string filename, Grid* grid)
 			sscanf_s(line, "%s ", caType, 20);
 			if (!(strcmp(caType, "LineMinPos:"))) {
 				sscanf_s(line, "%*s %i %i", &iMinWidht, &iMinHeight);
-				std::cout << "Found\n";
 			}
 			else if (!(strcmp(caType, "LineMaxPos:"))) {
 				sscanf_s(line, "%*s %i %i", &iMaxWidht, &iMaxHeight);
-				std::cout << "Found\n";
 			}
 			else if (!(strcmp(caType, "Cairn:"))) {
 				char ca[100];
@@ -187,44 +191,50 @@ bool MapReader::readIntoGrid(std::string filename, Grid* grid)
 		}
 	}
 
-	int iScale = 10;
-
-	int iPadding = 10;
-
-	iMinWidht -= iPadding;
-	iMinHeight -= iPadding;
-	iMaxWidht += iPadding;
-	iMaxHeight += iPadding;
+	//iMinWidht -= iPadding;
+	//iMinHeight -= iPadding;
+	//iMaxWidht += iPadding;
+	//iMaxHeight += iPadding;
 
 	iMinWidht /= iScale;
 	iMinHeight /= iScale;
 	iMaxWidht /= iScale;
 	iMaxHeight /= iScale;
 
+	int iSize = (grid->uiWidth * grid->uiHeight);
+
+	int iWidthOffset = abs(iMinWidht);
+	int iHeightOffset = abs(iMinHeight);
+
+	m_pStartPos.x = m_pStartPos.x / iScale + iWidthOffset;
+	m_pStartPos.y = m_pStartPos.y / iScale + iHeightOffset;
+	m_pGoalPos.x = m_pGoalPos.x / iScale + iWidthOffset;
+	m_pGoalPos.y = m_pGoalPos.y / iScale + iHeightOffset;
+
 	grid->uiWidth = abs(iMaxWidht) + abs(iMinWidht);
 	grid->uiHeight = abs(iMaxHeight) + abs(iMinHeight);
 
-	int iSize = (grid->uiWidth * grid->uiHeight);
-
-	int iWidthOffset = iMinWidht;
-	int iHeightOffset = iMinHeight;
-
 	//Initialize grid
-	Cell emptyCell;
-	emptyCell.iState = 0;
-	emptyCell.ptrParent = NULL;
+	Node emptyCell;
+	emptyCell.m_iState = 0;
+	emptyCell.m_ptrParent = NULL;
 	//std::cout << "Filling grid\n";
-	for (int i = 0; i < iSize; i++) {
-		grid->vCells.push_back(emptyCell);
+
+	for (int y = 0; y < grid->uiHeight; y++) {
+		for (int x = 0; x < grid->uiWidth; x++) {
+			//Place node into grid (Index, State, Coordinate, ParentPointer)
+			grid->vNodes.push_back(std::make_shared<Node>(getIndex(x, y, grid->uiWidth), 0, Point(x, y)));
+		}
 	}
 
 	//Place lines into grid map
 	for (int i = 0; i < vLines.size(); i++) {
-		vLines.at(i).start.x /= iScale;
-		vLines.at(i).start.y /= iScale;
-		vLines.at(i).end.x /= iScale;
-		vLines.at(i).end.y /= iScale;
-		placeLine(vLines.at(i), grid, Point(iMinWidht, iMinHeight));
+		vLines.at(i).start.x = (vLines.at(i).start.x / iScale) + iWidthOffset;
+		vLines.at(i).start.y = (vLines.at(i).start.y / iScale) + iHeightOffset;
+		vLines.at(i).end.x = (vLines.at(i).end.x / iScale) + iWidthOffset;
+		vLines.at(i).end.y = (vLines.at(i).end.y / iScale) + iHeightOffset;
+		std::cout << "Placing line: " << i << "\n";
+		placeLine(vLines.at(i), grid,Point(0,0));
 	}
 	return false;
 }
