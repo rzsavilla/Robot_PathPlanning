@@ -264,7 +264,7 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 			if (iChosenNode == m_iGoalIndex) {
 				//Save path and end search
 				savePath(iChosenNode, path);
-				std::cout << "Path found\n";
+				std::cout << "Path found: Nodes: " << path->size() << "\n";
 				return true;
 			}
 			Point coord = getCoord(iChosenNode,m_grid->uiWidth);

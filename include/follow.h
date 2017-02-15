@@ -26,12 +26,12 @@ protected:
 	double pGain; // Gain
 	double iGain;
 	double dGain;
-	double pTerm = 0;
-	double iTerm = 0;
-	double dTerm = 0;
+	double pTerm;
+	double iTerm;
+	double dTerm;
 
-	double iState = 0;
-	double dState = 0;		//Last position
+	double iState;
+	double dState;		//Last position
 
 	float pos;
 

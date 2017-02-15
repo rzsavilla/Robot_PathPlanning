@@ -35,11 +35,6 @@ int main(int argc, char **argv)
 	mapReader.createGrid(sMapFile, &grid_map,100);
 	mapReader.saveGrid(&grid_map, "resources/grids/" + sMapName + ".txt");
 
-	//for (int y = 0; y < 10; y++) {
-	//	for (int x = 0; x < 10; x++) {
-	//		grid_map.vNodes.push_back(std::make_shared<Node>(getIndex(x,y,10), 0, Point(x,y)));
-	//	}
-	//}
 	AStar pathFinder;
 	pathFinder.addTraversable(1,0);
 	std::vector<int> viPath;
@@ -56,6 +51,7 @@ int main(int argc, char **argv)
 	argParser.addDefaultArgument("-connectLaser");
 
 	if(!robotConnector.connectRobot())
+
 	{
 	ArLog::log(ArLog::Terse, "Could not connect to the robot.");
 	if(argParser.checkHelpAndWarnUnparsed())
