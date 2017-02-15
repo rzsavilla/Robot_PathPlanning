@@ -228,7 +228,8 @@ std::vector<unsigned int> AStar::getTraversable()
 
 bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path)
 {
-	std::cout << "Finding Path\n";
+	std::cout << "Finding Path\n ";
+	std::cout << "Start:" << start.x << " " << start.y << " Goal: " << goal.x << " " << goal.y << "\n";
 	//std::cout << "Get Path\n";
 	if (!grid->vNodes.empty()) {
 		m_vuiOpen.clear();
@@ -263,11 +264,12 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 			if (iChosenNode == m_iGoalIndex) {
 				//Save path and end search
 				savePath(iChosenNode, path);
+				std::cout << "Path found\n";
 				return true;
 			}
 			Point coord = getCoord(iChosenNode,m_grid->uiWidth);
-			std::cout << coord.x << " " << coord.y << "\n";
-			std::cout << "OpenList: " << m_vuiOpen.size() << " ClosedList: " << m_vuiClosed.size() << "\n";
+			//std::cout << coord.x << " " << coord.y << "\n";
+			//std::cout << "OpenList: " << m_vuiOpen.size() << " ClosedList: " << m_vuiClosed.size() << "\n";
 			//Remove node from open and add to closed list
 			m_vuiClosed.push_back(iChosenNode);
 			for (int i = 0; i < m_vuiOpen.size(); i++) {

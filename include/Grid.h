@@ -9,8 +9,8 @@ static int getIndex(int x, int y, int width) {
 }
 
 static Point getCoord(int index, int width) {
-	int x = (int)(index / width);	//Row
-	int y = index % width;	//Column
+	float x = (int)(index / width);	//Row
+	float y = index % width;	//Column
 	return Point(x, y);
 }
 

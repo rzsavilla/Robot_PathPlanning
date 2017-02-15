@@ -36,15 +36,14 @@ struct Line {
 
 class MapReader {
 private:
-	void placeLine(Point start, Point end, Grid* grid);
-	void placeLine(Point start, Point end, Grid* grid, Point minOffset);
-	void placeLine(Line line, Grid* grid, Point minOffset);
-
-	
+	Grid* m_grid;
+	void placeLine(Point start, Point end);
+	int m_iCellSize;
+	Point m_pMapSize;
 public:
 	MapReader();
 	void saveGrid(Grid* grid, std::string file);
-	bool readIntoGrid(std::string filename, Grid* grid);
+	bool createGrid(std::string filename, Grid* grid,int cellSize);
 
 	Point m_pStartPos;
 	Point m_pGoalPos;

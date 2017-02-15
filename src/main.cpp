@@ -30,18 +30,20 @@ int main(int argc, char **argv)
 	//	mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
 	//}
 
-	grid_map.uiWidth = 10;
-	grid_map.uiHeight = 10;
-	for (int y = 0; y < 10; y++) {
-		for (int x = 0; x < 10; x++) {
-			grid_map.vNodes.push_back(std::make_shared<Node>(getIndex(x,y,10), 0, Point(x,y)));
-		}
-	}
+	std::cout << "Generating Grid\n";
+	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+	mapReader.createGrid(sMapFile, &grid_map,100);
+	mapReader.saveGrid(&grid_map, "resources/grids/" + sMapName + ".txt");
 
+	//for (int y = 0; y < 10; y++) {
+	//	for (int x = 0; x < 10; x++) {
+	//		grid_map.vNodes.push_back(std::make_shared<Node>(getIndex(x,y,10), 0, Point(x,y)));
+	//	}
+	//}
 	AStar pathFinder;
 	pathFinder.addTraversable(1,0);
 	std::vector<int> viPath;
-	pathFinder.getPath(Point(0,0),Point(9,9),&grid_map,&viPath);
+	pathFinder.getPath(mapReader.m_pStartPos,mapReader.m_pGoalPos,&grid_map,&viPath);
 
 	Aria::init();
 	ArArgumentParser argParser(&argc, argv);
