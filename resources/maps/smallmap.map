@@ -1,0 +1,12 @@
+2D-Map
+LineMinPos: 0 0
+LineMaxPos: 2000 2000
+NumLines: 3
+LinesAreSorted: true
+Cairn: RobotHome 700 1500 0.000000 "" ICON ""
+Cairn: Goal 1500 500 0.000000 "" ICON "New Goal"
+LINES
+0 0 0 2000
+0 0 2000 0
+0 2000 2000 2000
+DATA

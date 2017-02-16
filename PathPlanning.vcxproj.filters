@@ -28,6 +28,9 @@
     <ClCompile Include="src\Node.cpp">
       <Filter>Source\PathPlanner</Filter>
     </ClCompile>
+    <ClCompile Include="src\FollowPath.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\avoid.h">
@@ -56,6 +59,9 @@
     </ClInclude>
     <ClInclude Include="include\Grid.h">
       <Filter>Include\PathPlanner</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FollowPath.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

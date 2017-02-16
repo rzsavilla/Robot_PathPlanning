@@ -5,6 +5,41 @@
 #include "follow.h"
 #include "MapReader.h"
 #include "AStar.h"
+#include "FollowPath.h"
+
+void moveTo(float x, float y, Grid* grid, std::vector<int>* viPath)
+{
+	//Find angle towards point
+	float fPosX = 0.0;
+	float fPosY = 0.0;
+	float fTh = 0.0f;
+	float fTargetAngle = 0.0f;
+
+	float dot = fPosX * x + fPosY * y;						//Dot product of the two points
+	float fMag1 = sqrt(pow(fPosX, 2) + pow(fPosY, 2));	
+	float fMag2 = sqrt(pow(x, 2) + pow(y, 2));
+
+	float fAngleDiff; //Angle between two points
+	fAngleDiff = atan2(y - fPosY, x - fPosX) * 180 / 3.14159265359;	//Angle in degrees
+	fTargetAngle = (int)(fTh + fAngleDiff) % 360;
+	if (fTargetAngle > 180) fTargetAngle -= 180;
+
+	//Remove offset
+	for (auto it = grid->vNodes.begin(); it != grid->vNodes.end(); ++it) {
+		//Grid coordinates to map coordinates
+		(*it)->m_pMapCoord.x -= grid->pOffset.x;
+		(*it)->m_pMapCoord.y -= grid->pOffset.y;
+	}
+
+	//Iterate through paths
+	for (int i = 0; i < viPath->size(); i++) {
+		float fTargetX = (grid->vNodes.at(viPath->at(i))->m_pGridCoord.x * grid->iCellSize) / 100;
+		float fTargetY = (grid->vNodes.at(viPath->at(i))->m_pGridCoord.y * grid->iCellSize) / 100;
+		std::cout << "X:" << fTargetX << " Y:" << fTargetY << "\n";
+	}
+
+}
+
 
 int main(int argc, char **argv)
 {
@@ -12,8 +47,9 @@ int main(int argc, char **argv)
 	MapReader mapReader;		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
-	std::string sMapName = "mymap";
+	std::string sMapName = "testmap";
 	Grid grid_map;
+
 	//Check if grid file for map has already been created
 	//std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
 	//if (FILE* file = fopen(sGridFile.c_str(), "r")) {
@@ -32,13 +68,15 @@ int main(int argc, char **argv)
 
 	std::cout << "Generating Grid\n";
 	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	mapReader.createGrid(sMapFile, &grid_map,100);
-	mapReader.saveGrid(&grid_map, "resources/grids/" + sMapName + ".txt");
+	//mapReader.createGrid(sMapFile, &grid_map,100);
+	//mapReader.saveGrid(&grid_map, "resources/grids/" + sMapName + ".txt");
 
-	AStar pathFinder;
-	pathFinder.addTraversable(1,0);
-	std::vector<int> viPath;
-	pathFinder.getPath(mapReader.m_pStartPos,mapReader.m_pGoalPos,&grid_map,&viPath);
+	//AStar pathFinder;
+	//pathFinder.addTraversable(1,0);
+	//std::vector<int> viPath;
+	//pathFinder.getPath(mapReader.m_pStartPos,mapReader.m_pGoalPos,&grid_map,&viPath);
+
+	//moveTo(-10, 10.0f,&grid_map,&viPath);
 
 	Aria::init();
 	ArArgumentParser argParser(&argc, argv);
@@ -61,7 +99,6 @@ int main(int argc, char **argv)
 		Aria::exit(1);
 	}
 	}
-
 
 	// Trigger argument parsing
 	if (!Aria::parseArgs() || !argParser.checkHelpAndWarnUnparsed())
@@ -100,12 +137,17 @@ int main(int argc, char **argv)
 	Avoid avoid;
 	follow follow;
 
+	FollowPath followPath;
+
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
 	robot.addAction(&bumpers, 75);
 	//robot.addAction(&avoid, 50);
-	robot.addAction(&follow, 40);
+	robot.addAction(&followPath, 40);
+	//robot.addAction(&follow, 40);
 	//robot.addAction(&wander, 1);
+
+	
   
 	// wait for robot task loop to end before exiting the program
 	robot.waitForRunExit();

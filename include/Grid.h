@@ -18,6 +18,10 @@ struct Grid {
 	Grid() {};
 	unsigned int uiWidth;
 	unsigned int uiHeight;
+	int iCellSize;
+	Point pOffset;
+	Point pStartPos;
+	float fStartTh;
 	std::vector<std::shared_ptr<Node>> vNodes;
 
 	void draw() {

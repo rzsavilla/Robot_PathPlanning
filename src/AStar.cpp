@@ -6,7 +6,7 @@ std::vector<int> AStar::getAdjacent(unsigned int index)
 	std::vector<int> viAdjacentNodes;		//Stores adjacent/child nodes of center/parent node
 
 	std::shared_ptr<Node> center = m_grid->vNodes.at(index);	//Center node
-	Point p = center->m_pCoord;		//Coordinates of center node		
+	Point p = center->m_pGridCoord;		//Coordinates of center node		
 	unsigned int uiWidth = m_grid->uiWidth;		//Grid width used in computing index
 
 	int iAdj;	//Index of adjacent node
@@ -72,8 +72,6 @@ std::vector<int> AStar::getAdjacent(unsigned int index)
 		calcScore(m_grid->vNodes.at((*it)));								//Calculate score
 	}
 
-	
-
 	return viAdjacentNodes;
 }
 
@@ -123,7 +121,6 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 		float G = 0.0f;
 		float H = 0.0f;
 
-
 		int iMoveTotal = 0;
 		int iChild;
 		int iParent;
@@ -135,10 +132,26 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 		std::shared_ptr<Node> ptrParent = node->m_ptrParent;
 		
 		//Calculate G: Movement cost from root node to current child node
+		
+		float fDMoveCost = 15.0f;
+		float fMoveCost = 10.0f;
+
+		float fCost;
+		fCost = fMoveCost;
+		if (node->m_ptrParent->m_pGridCoord.y != node->m_pGridCoord.y) {
+			if (node->m_ptrParent->m_pGridCoord.x != node->m_pGridCoord.x) {
+				//Diagonal movement cost
+				fCost = fMoveCost = fDMoveCost;
+			}
+		}
+
+		node->m_fScoreG = node->m_ptrParent->m_fScoreG + fCost;
+		
+		/*
 		while (!bRootReached) {
-			Point pChild = m_grid->vNodes.at(iChild)->m_pCoord;		//Get child node coordinates
-			Point pParent = m_grid->vNodes.at(iParent)->m_pCoord;	//Get parent node coordinates
-			//Move direction from parent to child position
+			Point pChild = m_grid->vNodes.at(iChild)->m_pGridCoord;		//Get child node coordinates
+			Point pParent = m_grid->vNodes.at(iParent)->m_pGridCoord;	//Get parent node coordinates
+																	//Move direction from parent to child position
 			Point dir = Point(pChild.x - pParent.x, pChild.y - pParent.y);
 			//Horizontal move
 			if (dir.x > 0 || dir.x < 0) {
@@ -162,17 +175,22 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 			ptrParent = ptrParent->m_ptrParent;	//Get parents parent
 			iParent = ptrParent->m_iIndex;			//Previous parent nodes parent is now the parent
 		}
-
+		node->m_fScoreG = G;
+		*/
 		/*
 		Heuristics
 		http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 		*/
-		Point pNode = m_grid->vNodes.at(node->m_iIndex)->m_pCoord;
-		float dx = abs(pNode.x - m_pGoal.x);
-		float dy = abs(pNode.y - m_pGoal.y);
-		H = 1 * sqrt(dx * dx + dy * dy);
+		
+		//This nodes grid coordinates
+		Point pCoordCurrent = node->m_pGridCoord;		
+		float dx = abs(pCoordCurrent.x - m_pGoal.x);
+		float dy = abs(pCoordCurrent.y - m_pGoal.y);
+		//H = (1 * sqrt(dx * dx + dy * dy)) * 10;
 
-		float fAnswer = G + H;
+		H = fMoveCost * (dx + dy) + (fDMoveCost - 2 * fMoveCost) * std::min(dx, dy);
+
+		float fAnswer = node->m_fScoreG + H;
 		node->m_fScore = fAnswer;
 		return fAnswer;
 	}
@@ -185,6 +203,7 @@ bool AStar::savePath(unsigned int index, std::vector<int>* path)
 	path->clear();	//Ensure vector is empty
 	std::shared_ptr<Node> node = m_grid->vNodes.at(index);
 	while (node->m_ptrParent != nullptr) {
+		node->m_iState = 3;
 		path->push_back(node->m_iIndex);
 		node = node->m_ptrParent;
 	}
@@ -238,8 +257,8 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 		m_grid = grid;
 		m_iRootIndex = getIndex(start.x,start.y,grid->uiWidth);
 		m_iGoalIndex = getIndex(goal.x, goal.y, grid->uiWidth);
-		m_pStart = m_grid->vNodes.at(m_iRootIndex)->m_pCoord;
-		m_pGoal = m_grid->vNodes.at(m_iRootIndex)->m_pCoord;
+		m_pStart = m_grid->vNodes.at(m_iRootIndex)->m_pGridCoord;
+		m_pGoal = m_grid->vNodes.at(m_iRootIndex)->m_pGridCoord;
 
 		//Add adjacent nodes
 		std::vector<int> vuiAdjacent;
@@ -267,7 +286,7 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 				std::cout << "Path found: Nodes: " << path->size() << "\n";
 				return true;
 			}
-			Point coord = getCoord(iChosenNode,m_grid->uiWidth);
+			//Point coord = getCoord(iChosenNode,m_grid->uiWidth);
 			//std::cout << coord.x << " " << coord.y << "\n";
 			//std::cout << "OpenList: " << m_vuiOpen.size() << " ClosedList: " << m_vuiClosed.size() << "\n";
 			//Remove node from open and add to closed list

@@ -2,7 +2,8 @@
 
 /*
 A* Algorithm Tutorial
-http://www.policyalmanac.org/games/aStarTutorial.htm
+www.policyalmanac.org/games/aStarTutorial.htm
+http://www.growingwiththeweb.com/2012/06/a-pathfinding-algorithm.html
 */
 
 #pragma once

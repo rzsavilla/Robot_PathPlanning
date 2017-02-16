@@ -38,12 +38,16 @@ class MapReader {
 private:
 	Grid* m_grid;
 	void placeLine(Point start, Point end);
-	int m_iCellSize;
+	int addPadding(std::shared_ptr<Node> node, int MNeighbourhood);
+
+
 	Point m_pMapSize;
 public:
 	MapReader();
 	void saveGrid(Grid* grid, std::string file);
 	bool createGrid(std::string filename, Grid* grid,int cellSize);
+
+	int m_iCellSize;
 
 	Point m_pStartPos;
 	Point m_pGoalPos;

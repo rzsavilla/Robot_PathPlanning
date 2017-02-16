@@ -19,14 +19,18 @@ struct Node {
 		m_iIndex = index;
 		m_ptrParent = parent;
 	};
-	Node(int index, int state, Point coordinate) {
+	Node(int index, int state,Point gridCoord, Point mapCoord) {
 		m_iIndex = index;
 		m_iState = state;
-		m_pCoord = coordinate;
+		m_pGridCoord = gridCoord;
+		m_pMapCoord = mapCoord;
+		m_fScoreG = 0.0f;
 	}
 	int m_iIndex;
 	int m_iState;
-	float m_fScore;
-	Point m_pCoord;
+	float m_fScore;		//!< G + H
+	float m_fScoreG;
+	Point m_pGridCoord;		//!< Grid Coordinate
+	Point m_pMapCoord;			//!< Map Coordinates
 	std::shared_ptr<Node> m_ptrParent;
 };

@@ -14,6 +14,7 @@
     <ClCompile Include="src\AStar.cpp" />
     <ClCompile Include="src\avoid.cpp" />
     <ClCompile Include="src\follow.cpp" />
+    <ClCompile Include="src\FollowPath.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MapReader.cpp" />
     <ClCompile Include="src\Node.cpp" />
@@ -25,6 +26,7 @@
     <ClInclude Include="include\AStar.h" />
     <ClInclude Include="include\avoid.h" />
     <ClInclude Include="include\follow.h" />
+    <ClInclude Include="include\FollowPath.h" />
     <ClInclude Include="include\Grid.h" />
     <ClInclude Include="include\MapReader.h" />
     <ClInclude Include="include\Node.h" />
