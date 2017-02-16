@@ -16,12 +16,15 @@ static Point getCoord(int index, int width) {
 
 struct Grid {
 	Grid() {};
-	unsigned int uiWidth;
-	unsigned int uiHeight;
+	unsigned int uiWidth;	//!< Grid width;
+	unsigned int uiHeight;	//!< Grid height;
 	int iCellSize;
-	Point pOffset;
-	Point pStartPos;
-	float fStartTh;
+	Point pOffset;			//!< Used to change maps origin to 0,0
+	Point pMapStart;		//!< Start position in grid coordinates
+	Point pMapGoal;			//!< Goal position in grid coordinates
+	Point pGridStart;
+	Point pGridGoal;
+	float fStartTh;			//!< Robots initial heading
 	std::vector<std::shared_ptr<Node>> vNodes;
 
 	void draw() {

@@ -116,10 +116,11 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 	H = Estimated movement cost from this node to destination node (Heuristic)
 	*/
 	if (node->m_ptrParent != NULL) {	//Check if it has a parent
-		int MoveCost = 10;
-
 		float G = 0.0f;
 		float H = 0.0f;
+
+		m_fMoveCost = 5.0f;
+		m_fDMoveCost = 10.0f;
 
 		int iMoveTotal = 0;
 		int iChild;
@@ -132,63 +133,26 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 		std::shared_ptr<Node> ptrParent = node->m_ptrParent;
 		
 		//Calculate G: Movement cost from root node to current child node
-		
-		float fDMoveCost = 15.0f;
-		float fMoveCost = 10.0f;
-
 		float fCost;
-		fCost = fMoveCost;
+		fCost = m_fMoveCost;
 		if (node->m_ptrParent->m_pGridCoord.y != node->m_pGridCoord.y) {
 			if (node->m_ptrParent->m_pGridCoord.x != node->m_pGridCoord.x) {
 				//Diagonal movement cost
-				fCost = fMoveCost = fDMoveCost;
+				fCost = m_fDMoveCost;
 			}
 		}
 
 		node->m_fScoreG = node->m_ptrParent->m_fScoreG + fCost;
-		
-		/*
-		while (!bRootReached) {
-			Point pChild = m_grid->vNodes.at(iChild)->m_pGridCoord;		//Get child node coordinates
-			Point pParent = m_grid->vNodes.at(iParent)->m_pGridCoord;	//Get parent node coordinates
-																	//Move direction from parent to child position
-			Point dir = Point(pChild.x - pParent.x, pChild.y - pParent.y);
-			//Horizontal move
-			if (dir.x > 0 || dir.x < 0) {
-				G += MoveCost;
-			}
-			//Vertical move
-			else if (dir.y > 0 || dir.y < 0) {
-				G += MoveCost;
-			}
-			else {
-				G += MoveCost;
-			}
-			iMoveTotal++;
-
-			iChild = ptrParent->m_iIndex;	//Child's parent is now the child node
-
-			//Check if root node reached
-			bRootReached = (m_grid->vNodes.at(iChild)->m_iIndex == m_iRootIndex);
-			if (bRootReached) continue;	//Skip
-
-			ptrParent = ptrParent->m_ptrParent;	//Get parents parent
-			iParent = ptrParent->m_iIndex;			//Previous parent nodes parent is now the parent
-		}
-		node->m_fScoreG = G;
-		*/
 		/*
 		Heuristics
 		http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 		*/
-		
 		//This nodes grid coordinates
 		Point pCoordCurrent = node->m_pGridCoord;		
 		float dx = abs(pCoordCurrent.x - m_pGoal.x);
 		float dy = abs(pCoordCurrent.y - m_pGoal.y);
-		//H = (1 * sqrt(dx * dx + dy * dy)) * 10;
 
-		H = fMoveCost * (dx + dy) + (fDMoveCost - 2 * fMoveCost) * std::min(dx, dy);
+		H = m_fMoveCost * (dx + dy) + (m_fDMoveCost - 2 * m_fMoveCost) * std::min(dx, dy);
 
 		float fAnswer = node->m_fScoreG + H;
 		node->m_fScore = fAnswer;
@@ -227,6 +191,8 @@ unsigned int AStar::getLowestScore()
 
 AStar::AStar()
 {
+	m_fMoveCost = 10.0f;	//Default cost
+	m_fDMoveCost = 10.0f;	//Defulat cost
 }
 
 void AStar::addTraversable(unsigned int n, ...)
@@ -257,8 +223,8 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 		m_grid = grid;
 		m_iRootIndex = getIndex(start.x,start.y,grid->uiWidth);
 		m_iGoalIndex = getIndex(goal.x, goal.y, grid->uiWidth);
-		m_pStart = m_grid->vNodes.at(m_iRootIndex)->m_pGridCoord;
-		m_pGoal = m_grid->vNodes.at(m_iRootIndex)->m_pGridCoord;
+		m_pStart = start;
+		m_pGoal = goal;
 
 		//Add adjacent nodes
 		std::vector<int> vuiAdjacent;

@@ -23,6 +23,9 @@ private:
 	int m_iGoalIndex;
 	Point m_pStart;
 	Point m_pGoal;
+	float m_fDMoveCost;	//!< Cost of diagonal movement
+	float m_fMoveCost;	//!< Cost of Horizontal vertical movement
+
 
 	std::vector<unsigned int> m_vuiClosed;		//!< Visited Nodes
 	std::vector<unsigned int> m_vuiOpen;		//!< Unvisited Nodes

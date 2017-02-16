@@ -11,8 +11,8 @@ class FollowPath : public ArAction // Class action inherits from ArAction
 	};
 
 private:
-	Grid m_grid;
-	std::vector<int> m_viPath;	//Stores grid node indexes
+	Grid* m_ptrGrid;
+	std::vector<int>* m_ptrviPath;	//Stores grid node indexes
 private:
 
 	State m_state;
@@ -40,7 +40,7 @@ public:
 	virtual ArActionDesired * fire(ArActionDesired d); // Body of the action
 	ArActionDesired desiredState; // Holds state of the robot that we wish to action
 
-
+	void setPath(std::vector<int>* path, Grid* grid);
 	void setRobot(float x, float y, float th);
 
 	void moveTo(float x, float y);

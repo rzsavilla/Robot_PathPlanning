@@ -10,24 +10,24 @@
 
 void FollowPath::init()
 {
-	//////////	Generate Grid Map	///////////
-	MapReader mapReader;		//Create grid using map file
-	std::string sMapResLoc = "resources/maps/";
-	std::string sGridResLoc = "resources/grids/";
-	std::string sMapName = "Mine";
+	////////////	Generate Grid Map	///////////
+	//MapReader mapReader;		//Create grid using map file
+	//std::string sMapResLoc = "resources/maps/";
+	//std::string sGridResLoc = "resources/grids/";
+	//std::string sMapName = "Mine";
 
-	std::cout << "Generating Grid\n";
-	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	mapReader.createGrid(sMapFile, &m_grid, 100);
-	
+	//std::cout << "Generating Grid\n";
+	//std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
+	//mapReader.createGrid(sMapFile, m_ptrGrid, 100);
+	//
 
-	m_pStartPos = mapReader.m_pStartPos;
+	//m_pStartPos = mapReader.m_pStartPos;
 
-	AStar pathFinder;
-	pathFinder.addTraversable(1, 0);
-	pathFinder.getPath(mapReader.m_pStartPos, mapReader.m_pGoalPos, &m_grid, &m_viPath);
+	//AStar pathFinder;
+	//pathFinder.addTraversable(1, 0);
+	//pathFinder.getPath(mapReader.m_pStartPos, mapReader.m_pGoalPos, m_ptrGrid, m_ptrviPath);
 
-	mapReader.saveGrid(&m_grid, "resources/grids/" + sMapName + ".txt");
+	//mapReader.saveGrid(m_ptrGrid, "resources/grids/" + sMapName + ".txt");
 }
 
 FollowPath::FollowPath() : ArAction("FollowPath")
@@ -38,8 +38,8 @@ FollowPath::FollowPath() : ArAction("FollowPath")
 ArActionDesired * FollowPath::fire(ArActionDesired d)
 {
 	desiredState.reset();
-	m_fX = myRobot->getX() + m_grid.pStartPos.x;
-	m_fY = myRobot->getY() + m_grid.pStartPos.y;
+	m_fX = myRobot->getX() + m_ptrGrid->pMapStart.x;
+	m_fY = myRobot->getY() + m_ptrGrid->pMapStart.y;
 	m_fTh =  myRobot->getTh() ;
 	//myRobot->set
 	float fOffset = 1.0f;
@@ -50,16 +50,16 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 	switch (m_state)
 	{
 	case Idle: {
-		if (!m_viPath.empty()) {
-			m_fDesiredPos = m_grid.vNodes.at(m_viPath.front())->m_pMapCoord;
+		if (!m_ptrviPath->empty()) {
+			m_fDesiredPos = m_ptrGrid->vNodes.at(m_ptrviPath->front())->m_pMapCoord;
 			//Calculate heading towards desired position
 			float fDiff; //Angle between two points
 			fDiff = atan2(m_fDesiredPos.y - m_fY, m_fDesiredPos.x - m_fX) * 180 / 3.14159265359;	//Angle in degrees
-			fDiff -= m_grid.fStartTh;
+			fDiff -= m_ptrGrid->fStartTh;
 			m_fDesiredHeading = (int)(fDiff) % 360;
 			if (m_fDesiredHeading > 180) m_fDesiredHeading -= 180;
 
-			m_viPath.erase(m_viPath.begin());
+			m_ptrviPath->erase(m_ptrviPath->begin());
 			m_state = Rotating;
 			m_bNodeSet = true;
 		}
@@ -99,7 +99,7 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 	case Loading: {
 		init();
 		m_state = State::Idle;
-		//myRobot->setHeading(m_grid.fStartTh);
+		//myRobot->setHeading(m_ptrGrid.fStartTh);
 	}
 	default:
 		break;
@@ -111,6 +111,12 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 
 
 	return &desiredState;
+}
+
+void FollowPath::setPath(std::vector<int>* path, Grid * grid)
+{
+	m_ptrviPath = path;
+	m_ptrGrid = grid;
 }
 
 void FollowPath::setRobot(float x, float y, float th)

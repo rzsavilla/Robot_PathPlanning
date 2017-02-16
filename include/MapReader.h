@@ -42,14 +42,16 @@ private:
 
 
 	Point m_pMapSize;
-public:
-	MapReader();
-	void saveGrid(Grid* grid, std::string file);
-	bool createGrid(std::string filename, Grid* grid,int cellSize);
 
 	int m_iCellSize;
+	int m_iPadding;
 
-	Point m_pStartPos;
-	Point m_pGoalPos;
-	float m_fTH;
+	float m_fMoveCost;	//Horizontal and vertical movement cost
+	float m_fDMoveCost;	//Diagonal Movement cost
+public:
+	MapReader(int cellSize,int padding);
+	void saveGrid(Grid* grid, std::string file);
+	bool createGrid(std::string filename, Grid* grid);
+
+	
 };

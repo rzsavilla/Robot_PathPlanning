@@ -94,9 +94,11 @@ int MapReader::addPadding(std::shared_ptr<Node> node, int MNeighbourhood)
 	return 0;
 }
 
-MapReader::MapReader()
-{
 
+MapReader::MapReader(int cellSize, int padding)
+{
+	m_iCellSize = cellSize;
+	m_iPadding = padding;
 }
 
 void MapReader::saveGrid(Grid * grid, std::string filename)
@@ -108,7 +110,6 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 		std::cout << "*Level could not be saved: '" << filename << "'\n\n";
 		return;
 	}
-
 
 	for (int y = grid->uiHeight-1; y >= 0; y--) {
 		for (int x = 0; x < grid->uiWidth; x++) {
@@ -138,13 +139,12 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 	file.close();
 }
 
-bool MapReader::createGrid(std::string filename, Grid * grid, int cellSize)
+bool MapReader::createGrid(std::string filename, Grid * grid)
 {
 	std::cout << "Parsing map file: " << filename << "\n";
 
 	m_grid = grid;
-	m_grid->iCellSize = cellSize;
-	m_iCellSize = cellSize;	//Cell size in mm width and height
+	m_grid->iCellSize = m_iCellSize;
 
 	//----------Parse map file-----------
 	FILE* myFile;
@@ -158,7 +158,7 @@ bool MapReader::createGrid(std::string filename, Grid * grid, int cellSize)
 	int iMaxWidht;
 	int iMaxHeight;
 
-	int i[4];
+	int i[4];	//Temp integer storage for parsing
 
 	//Open the file
 	fopen_s(&myFile, cFilename, "r");
@@ -184,12 +184,12 @@ bool MapReader::createGrid(std::string filename, Grid * grid, int cellSize)
 				char s[20];
 				sscanf_s(line, "%*s %s %i %i %f", s, 20, &i[0], &i[1], &th);
 				if (!(strcmp(s, "Goal"))) {
-					m_pGoalPos = Point(i[0],i[1]);
+					grid->pMapGoal = Point(i[0],i[1]);
 					
 				}
 				else if (!(strcmp(s, "RobotHome"))) {
-					m_pStartPos = Point(i[0], i[1]);;
-					m_grid->fStartTh = th;
+					grid->pMapStart = Point(i[0], i[1]);;
+					grid->fStartTh = th;
 				}
 			}
 			else if (!(strcmp(caType, "LINES"))) {
@@ -208,7 +208,7 @@ bool MapReader::createGrid(std::string filename, Grid * grid, int cellSize)
 		}
 	}
 	m_pMapSize.x = abs((iMaxWidht) - (iMinWidht));		//Map width in mm
-	m_pMapSize.y = abs((iMaxHeight) - (iMinHeight));		//Map height in mm
+	m_pMapSize.y = abs((iMaxHeight) - (iMinHeight));	//Map height in mm
 
 	//---------Create Grid----------------
 	//Overlay a grid onto the map
@@ -223,49 +223,52 @@ bool MapReader::createGrid(std::string filename, Grid * grid, int cellSize)
 		for (int x = 0; x < grid->uiWidth; x++) {
 			//Place node into grid (Index, State, GridCoordinate, MapCoordinate)
 			//Initialize grid setting all nodes as traversable '0'
-			grid->vNodes.push_back(std::make_shared<Node>(getIndex(x, y, grid->uiWidth), 0,Point(x,y), Point((x * m_iCellSize) + m_iCellSize / 2, (y * m_iCellSize) + m_iCellSize / 2)));
+			grid->vNodes.push_back
+			(
+				std::make_shared<Node>(
+					getIndex(x, y, grid->uiWidth),		// Index
+					0,									// State
+					Point(x,y),							// Grid Coordinate
+					Point((x * m_iCellSize) + m_iCellSize / 2,	//Map coordinate
+					(y * m_iCellSize) + m_iCellSize / 2)
+				)
+			);
 		}
 	}
 
-	
 	//Applied to points to ensure coordinates start from 0,0 top left corner of the grid
 	Point pOffset = Point(abs(iMinWidht), abs(iMinHeight));
 	grid->pOffset = pOffset;
 
-	// Set position to start at 0
-	m_pStartPos.x += pOffset.x;
-	m_pStartPos.y += pOffset.y;
-	m_pGoalPos.x += pOffset.x;
-	m_pGoalPos.y += pOffset.y;
+	// Set position to start at 0,0
+	grid->pMapStart.x += pOffset.x;
+	grid->pMapStart.y += pOffset.y;
+	grid->pMapGoal.x += pOffset.x;
+	grid->pMapGoal.y += pOffset.y;
 
 	//Flip y coordinates
-	m_pStartPos.y = abs(m_pStartPos.y - m_pMapSize.y);
-	m_pGoalPos.y = abs(m_pGoalPos.y - m_pMapSize.y);
+	grid->pMapStart.y = abs(grid->pMapStart.y - m_pMapSize.y);
+	grid->pMapGoal.y = abs(grid->pMapGoal.y - m_pMapSize.y);
 
-	//Set as grid coordinates
-	m_pStartPos.x = (floor(m_pStartPos.x / m_iCellSize));
-	m_pStartPos.y = (floor(m_pStartPos.y / m_iCellSize));
-	m_pGoalPos.x = (floor(m_pGoalPos.x / m_iCellSize));
-	m_pGoalPos.y = (floor(m_pGoalPos.y / m_iCellSize));
+	//Convert map coordinates into grid coordinates
+	grid->pGridStart.x = (floor(grid->pMapStart.x / m_iCellSize));
+	grid->pGridStart.y = (floor(grid->pMapStart.y / m_iCellSize));
+	grid->pGridGoal.x = (floor(grid->pMapGoal.x / m_iCellSize));
+	grid->pGridGoal.y = (floor(grid->pMapGoal.y / m_iCellSize));
 
 	//Place lines into grid map
 	for (int i = 0; i < vLines.size(); i++) {
-		vLines.at(i).start.x += pOffset.x;
+		vLines.at(i).start.x += pOffset.x;	//Apply offset to set origin to 0,0
 		vLines.at(i).start.y += pOffset.y;
 		vLines.at(i).end.x += pOffset.x;
 		vLines.at(i).end.y += pOffset.y;
-
 		placeLine(vLines.at(i).start, vLines.at(i).end);
 	}
-
-	//Grid coordinates into map coordinates
-	m_grid->pStartPos.x = m_pStartPos.x * m_iCellSize;
-	m_grid->pStartPos.y = m_pStartPos.y * m_iCellSize;
 
 	//Add Padding/Neighbour cells become untraversable
 	for (int i = 0; i < m_grid->vNodes.size(); i++) {
 		if (m_grid->vNodes.at(i)->m_iState == 1) {
-			addPadding(m_grid->vNodes.at(i),4);
+			addPadding(m_grid->vNodes.at(i),m_iPadding);
 		}
 	}
 

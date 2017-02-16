@@ -37,46 +37,30 @@ void moveTo(float x, float y, Grid* grid, std::vector<int>* viPath)
 		float fTargetY = (grid->vNodes.at(viPath->at(i))->m_pGridCoord.y * grid->iCellSize) / 100;
 		std::cout << "X:" << fTargetX << " Y:" << fTargetY << "\n";
 	}
-
 }
 
 
 int main(int argc, char **argv)
 {
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader;		//Create grid using map file
+	MapReader mapReader(100,4);		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
-	std::string sMapName = "testmap";
+	std::string sMapName = "Mine";
+
 	Grid grid_map;
-
-	//Check if grid file for map has already been created
-	//std::string sGridFile = (sGridResLoc.append(sMapName)).append(".txt");
-	//if (FILE* file = fopen(sGridFile.c_str(), "r")) {
-	//	std::cout << "Grid has already been generated\n";
-	//	std::cout << "Generating Grid\n";
-	//	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	//	mapReader.readIntoGrid(sMapFile, &grid_map);
-	//	mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
-	//}
-	//else {
-	//	std::cout << "Generating Grid\n";
-	//	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	//	mapReader.readIntoGrid(sMapFile, &grid_map);
-	//	mapReader.saveGrid(&grid_map, "resources/grids/Mine.txt");
-	//}
-
 	std::cout << "Generating Grid\n";
 	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	//mapReader.createGrid(sMapFile, &grid_map,100);
-	//mapReader.saveGrid(&grid_map, "resources/grids/" + sMapName + ".txt");
+	mapReader.createGrid(sMapFile, &grid_map);
+	
+	std::vector<int> viPath;	//Stores node indexes
+	AStar pathFinder;
+	pathFinder.addTraversable(1, 0);
+	pathFinder.getPath(grid_map.pGridStart, grid_map.pGridGoal, &grid_map, &viPath);
 
-	//AStar pathFinder;
-	//pathFinder.addTraversable(1,0);
-	//std::vector<int> viPath;
-	//pathFinder.getPath(mapReader.m_pStartPos,mapReader.m_pGoalPos,&grid_map,&viPath);
+	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");
 
-	//moveTo(-10, 10.0f,&grid_map,&viPath);
+	//return 0;
 
 	Aria::init();
 	ArArgumentParser argParser(&argc, argv);
@@ -138,6 +122,7 @@ int main(int argc, char **argv)
 	follow follow;
 
 	FollowPath followPath;
+	followPath.setPath(&viPath, &grid_map);
 
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
