@@ -7,43 +7,10 @@
 #include "AStar.h"
 #include "FollowPath.h"
 
-void moveTo(float x, float y, Grid* grid, std::vector<int>* viPath)
-{
-	//Find angle towards point
-	float fPosX = 0.0;
-	float fPosY = 0.0;
-	float fTh = 0.0f;
-	float fTargetAngle = 0.0f;
-
-	float dot = fPosX * x + fPosY * y;						//Dot product of the two points
-	float fMag1 = sqrt(pow(fPosX, 2) + pow(fPosY, 2));	
-	float fMag2 = sqrt(pow(x, 2) + pow(y, 2));
-
-	float fAngleDiff; //Angle between two points
-	fAngleDiff = atan2(y - fPosY, x - fPosX) * 180 / 3.14159265359;	//Angle in degrees
-	fTargetAngle = (int)(fTh + fAngleDiff) % 360;
-	if (fTargetAngle > 180) fTargetAngle -= 180;
-
-	//Remove offset
-	for (auto it = grid->vNodes.begin(); it != grid->vNodes.end(); ++it) {
-		//Grid coordinates to map coordinates
-		(*it)->m_pMapCoord.x -= grid->pOffset.x;
-		(*it)->m_pMapCoord.y -= grid->pOffset.y;
-	}
-
-	//Iterate through paths
-	for (int i = 0; i < viPath->size(); i++) {
-		float fTargetX = (grid->vNodes.at(viPath->at(i))->m_pGridCoord.x * grid->iCellSize) / 100;
-		float fTargetY = (grid->vNodes.at(viPath->at(i))->m_pGridCoord.y * grid->iCellSize) / 100;
-		std::cout << "X:" << fTargetX << " Y:" << fTargetY << "\n";
-	}
-}
-
-
 int main(int argc, char **argv)
 {
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader(100,4);		//Create grid using map file
+	MapReader mapReader(150,2);		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
@@ -56,6 +23,7 @@ int main(int argc, char **argv)
 	std::vector<int> viPath;	//Stores node indexes
 	AStar pathFinder;
 	pathFinder.addTraversable(1, 0);
+	pathFinder.setMovementCost(6.0f, 12.0f);
 	pathFinder.getPath(grid_map.pGridStart, grid_map.pGridGoal, &grid_map, &viPath);
 
 	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");

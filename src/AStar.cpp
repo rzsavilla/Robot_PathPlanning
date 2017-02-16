@@ -119,9 +119,6 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 		float G = 0.0f;
 		float H = 0.0f;
 
-		m_fMoveCost = 5.0f;
-		m_fDMoveCost = 10.0f;
-
 		int iMoveTotal = 0;
 		int iChild;
 		int iParent;
@@ -191,8 +188,8 @@ unsigned int AStar::getLowestScore()
 
 AStar::AStar()
 {
-	m_fMoveCost = 10.0f;	//Default cost
-	m_fDMoveCost = 10.0f;	//Defulat cost
+	m_fDMoveCost = 0.0f;
+	m_fMoveCost = 0.0f;
 }
 
 void AStar::addTraversable(unsigned int n, ...)
@@ -204,6 +201,12 @@ void AStar::addTraversable(unsigned int n, ...)
 		val = va_arg(vl, int);
 		m_vuiTraversable.push_back(val);
 	}
+}
+
+void AStar::setMovementCost(float straight, float diagonal)
+{
+	m_fMoveCost = straight;
+	m_fDMoveCost = diagonal;
 }
 
 std::vector<unsigned int> AStar::getTraversable()

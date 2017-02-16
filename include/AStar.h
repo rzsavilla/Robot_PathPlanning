@@ -46,6 +46,7 @@ public:
 	AStar();		//!< Default constructor
 
 	void addTraversable(unsigned int n, ...);	//!< Add n number of traversable states
+	void setMovementCost(float straight, float diagonal);
 	std::vector<unsigned int> getTraversable();
 
 	bool getPath(Point start, Point goal, Grid* grid, std::vector<int>* path);
