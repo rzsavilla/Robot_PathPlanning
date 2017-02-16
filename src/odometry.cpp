@@ -35,7 +35,7 @@ ArActionDesired * odometry::fire(ArActionDesired d)
 {
 	desiredState.reset(); // reset the desired state (must be done)
 
-						  // Get ARIA odometer readings 
+	// Get ARIA odometer readings 
 	robotX = myRobot->getX();
 	robotY = myRobot->getY();
 	robotTh = myRobot->getTh(); // (in degrees)

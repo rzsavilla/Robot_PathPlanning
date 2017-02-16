@@ -7,19 +7,29 @@ class FollowPath : public ArAction // Class action inherits from ArAction
 {
 	enum State
 	{
-		Loading,Idle,Rotating, Forward
+		Test,Loading,Idle,Rotating, Forward
 	};
 
+private: //Odometry
+	float m_fX, m_fY, m_fTh;	//Robot position acccording to odometry
+	float m_fRX, m_fRY, m_fRTh;	//Robot position according to aria
+
+	double m_tr;	//Wheel radius
+	double m_l;	//Wheelbase of the robot
+	double m_rw;	//Wheel radius of the robot
+	double m_t1, m_t2; // Wheel encoder counts
+
+	void simulateEncoders();
+
+	DWORD m_newTs, m_oldTs;
+	float m_fTravelled;			//Distance travelled
+
+	void calcOdometry();
 private:
 	Grid* m_ptrGrid;
 	std::vector<int>* m_ptrviPath;	//Stores grid node indexes
 private:
-
 	State m_state;
-
-	float m_fTh;
-	float m_fX;
-	float m_fY;
 
 	Point m_pStartPos;
 	Point m_fDesiredPos;

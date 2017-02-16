@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader(150,2);		//Create grid using map file
+	MapReader mapReader(100,4);		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
@@ -23,7 +23,8 @@ int main(int argc, char **argv)
 	std::vector<int> viPath;	//Stores node indexes
 	AStar pathFinder;
 	pathFinder.addTraversable(1, 0);
-	pathFinder.setMovementCost(6.0f, 12.0f);
+	//pathFinder.setMovementCost(6.0f, 12.0f);
+	pathFinder.setMovementCost(5.0f, 10.0f);
 	pathFinder.getPath(grid_map.pGridStart, grid_map.pGridGoal, &grid_map, &viPath);
 
 	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");
