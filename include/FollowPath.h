@@ -24,6 +24,8 @@ private: //Odometry
 	DWORD m_newTs, m_oldTs;
 	float m_fTravelled;			//Distance travelled
 
+	float m_fTargetDist;		//!< distance for robot to travel untile state is changed
+
 	void calcOdometry();
 private:
 	Grid* m_ptrGrid;
@@ -34,6 +36,8 @@ private:
 	Point m_pStartPos;
 	Point m_fDesiredPos;
 
+	bool m_bLeft;	//Turn direction if false then turn right
+
 	float m_fDesiredPosX;
 	float m_fDesiredPosY;
 
@@ -43,7 +47,11 @@ private:
 	bool m_bHeadingSet;
 	bool m_bNodeSet;		//Node to move towards has been set
 
+	float m_fInitialTh;
+
 	void init();
+
+	int rotate(int degrees);
 public:
 	FollowPath(); //!< Constructor
 	virtual ~FollowPath() {}  //<! Destructor

@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader(100,4);		//Create grid using map file
+	MapReader mapReader(200,1);		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	follow follow;
 
 	FollowPath followPath;
-	followPath.setPath(&viPath, &grid_map);
+	
 
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
@@ -101,6 +101,7 @@ int main(int argc, char **argv)
 	//robot.addAction(&follow, 40);
 	//robot.addAction(&wander, 1);
 
+	followPath.setPath(&viPath, &grid_map);
 	
   
 	// wait for robot task loop to end before exiting the program

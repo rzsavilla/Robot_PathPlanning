@@ -35,26 +35,16 @@ void FollowPath::calcOdometry()
 	m_fRTh = myRobot->getTh(); // (in degrees)
 
 	simulateEncoders();
-
+	//m_fTh = normAngle(myRobot->getTh());
 	double dist = 0.0f;
 	double dx = 0.0f;
 	double dy = 0.0f;
 	double dTh = 0.0f;
 
-	float fRadians = m_fTh * PI / 180.0f;
+	float fRadians = (m_fRTh) * PI / 180.0f;
 
 	dx = cos(fRadians) * (m_t1 + m_t2) * ((PI * m_rw) / m_tr);
 	dy = sin(fRadians) * (m_t1 + m_t2) * ((PI * m_rw) / m_tr);
-
-	dTh = fRadians + (2 * PI) * (m_t2 - m_t1) * (m_rw / (m_tr * m_l));
-	
-	
-	m_fTh = dTh;
-	//if (myRobot->getHeadingDoneDiff() > 0) m_fTh += dTh;
-	m_fTh = m_fTh * (180 / PI);	//Convert to degrees
-	//m_fTh = (int)(m_fTh) % 360;
-	if (m_fTh > 180) m_fTh -= 179;
-	else if (m_fTh < -180) m_fTh += 180;
 
 	if (myRobot->getVel() > 0) {
 		m_fX += dx;
@@ -88,92 +78,77 @@ void FollowPath::init()
 	//mapReader.saveGrid(m_ptrGrid, "resources/grids/" + sMapName + ".txt");
 }
 
+int FollowPath::rotate(int degrees)
+{
+	m_fTh += degrees;
+	while (m_fTh <   -180) m_fTh += 360;
+	while (m_fTh > 180) m_fTh -= 360;
+	return m_fTh;
+}
+
 FollowPath::FollowPath() : ArAction("FollowPath")
 {
-	m_state = State::Loading;
+	m_state = State::Idle;
 }
 
 ArActionDesired * FollowPath::fire(ArActionDesired d)
 {
 	desiredState.reset();
 
-	m_fX = myRobot->getX() + m_ptrGrid->pMapStart.x;
-	m_fY = myRobot->getY() + m_ptrGrid->pMapStart.y;
-	m_fTh =  myRobot->getTh();
+	m_fX = myRobot->getX();
+	m_fY = myRobot->getY();
+	m_fTh = myRobot->getTh();
 
-	//calcOdometry();
+	calcOdometry();
 
-	float fOffset = 1.0f;
-	float m_fRotateHeading;
+	float fOffset = 2.0f;
 	float fPositionOffset = 50.0f;
-	Point pDiff;
 	float fDistance = 0;
 	switch (m_state)
 	{
 	case Idle: {
 		if (!m_ptrviPath->empty()) {
+			//Select node and set nodes position as target position
 			m_fDesiredPos = m_ptrGrid->vNodes.at(m_ptrviPath->front())->m_pMapCoord;
-			//Calculate heading towards desired position
-			float fDiff; //Angle between two points
-			fDiff = atan2(m_fDesiredPos.y - m_fY, m_fDesiredPos.x - m_fX) * 180 / PI;	//Angle in degrees
-			fDiff -= m_ptrGrid->fStartTh;
-			m_fDesiredHeading = (int)(fDiff) % 360;
-			if (m_fDesiredHeading > 180) m_fDesiredHeading -= 180;
 
-			m_ptrviPath->erase(m_ptrviPath->begin());
-			m_state = Rotating;
-			m_bNodeSet = true;
+			m_ptrviPath->erase(m_ptrviPath->begin());	//Remove node
+			m_state = Forward;
 		}
 		else {
 			std::cout << "Goal Reached\n";
 		}
 		break;
 	}
-	case FollowPath::Rotating: {
-		desiredState.setVel(0);
-		float fAngleDiff = m_fDesiredHeading - m_fTh;
-		if (fAngleDiff > -fOffset && fAngleDiff < fOffset) {
-			m_state = State::Forward;
-		}
-		else {
-			if (fAngleDiff > 0) desiredState.setDeltaHeading(10);
-			else desiredState.setDeltaHeading(-10);
-		}
-		break;
-	}
 	case FollowPath::Forward: {
-		
+		m_fDesiredHeading = myRobot->findAngleTo(ArPose(m_fDesiredPos.x, m_fDesiredPos.y));	//Update Heading
+		myRobot->setHeading(m_fDesiredHeading);	//Turn towards heading
+		//Move Forward
+		desiredState.setVel(200);
+
 		//Check if desired position has been reached
-		pDiff = Point(m_fDesiredPos.x - m_fX, m_fDesiredPos.x - m_fY);
-		fDistance = sqrt(pow(pDiff.x, 2) + pow(pDiff.y, 2));
-		fDistance = sqrt(pow(m_fDesiredPos.x - m_fX, 2) + pow(m_fDesiredPos.y - m_fY,2));
-		
-		std::cout << fDistance << "\n";
-		if (fDistance < 250) {
+		fDistance = sqrt(pow(m_fDesiredPos.x - m_fX, 2) + pow(m_fDesiredPos.y - m_fY, 2));
+		if (abs(fDistance) < 200) {
 			m_state = State::Idle;
 		}
 
-		//Move Forward
-		desiredState.setVel(200);
+		std::cout << "Forward: " << myRobot->getVel() << "\n";
+		std::cout << fDistance << " " << m_fX << " " << m_fY << " " << m_fDesiredPos.x << " " << m_fDesiredPos.y << "\n";
 		break;
 	}
 	case Loading: {
 		init();
+		
 		m_state = State::Idle;
-		//myRobot->setHeading(m_ptrGrid.fStartTh);
-		break;
-	}
-	case Test: {
-		desiredState.setVel(200.0f);
+		//Position robot onto map space
+		myRobot->setEncoderTransform(ArPose(m_ptrGrid->pMapStart.x, m_ptrGrid->pMapStart.y, m_ptrGrid->fStartTh));
 		break;
 	}
 	default:
 		break;
 	}
 
-	std::cout << "X:" << m_fX << " Y:" << m_fY << " th:" << m_fTh << "\n";
-	std::cout << m_fDesiredPos.x << " " << m_fDesiredPos.y << " " << fDistance << " " << m_fDesiredHeading << "\n";
-
+	//std::cout << "X:" << m_fX << " Y:" << m_fY << " th:" << m_fTh << " Tr:" << m_fTravelled <<"\n";
+	//std::cout << m_fDesiredPos.x << " " << m_fDesiredPos.y << " " << fDistance << " " << m_fDesiredHeading << "\n";
 
 	return &desiredState;
 }
@@ -189,7 +164,11 @@ void FollowPath::setPath(std::vector<int>* path, Grid * grid)
 
 	m_fX = m_ptrGrid->pMapStart.x;
 	m_fY = m_ptrGrid->pMapStart.y;
-	m_fTh = m_ptrGrid->fStartTh;
+	//m_fTh = m_ptrGrid->fStartTh;
+	m_fTh = 0.0f;
+
+	myRobot->setEncoderTransform(ArPose(m_ptrGrid->pMapStart.x, m_ptrGrid->pMapStart.y, m_ptrGrid->fStartTh));
+
 }
 
 void FollowPath::setRobot(float x, float y, float th)

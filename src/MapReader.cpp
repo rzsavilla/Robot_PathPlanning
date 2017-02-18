@@ -136,6 +136,33 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 		}
 		file << "\n";
 	}
+	/*
+	for (int y = 0 ; y < grid->uiHeight; y++) {
+		for (int x = 0; x < grid->uiWidth; x++) {
+			int iIndex = getIndex(x, y, grid->uiWidth);
+			int i = grid->vNodes.at(getIndex(x, y, grid->uiWidth))->m_iState;
+			switch (i)
+			{
+			case 0:
+				file << " ";
+				break;
+			case 1:
+				file << "#";
+				break;
+			case 2:
+				file << "@";
+				break;
+			case 3:
+				file << "+";
+				break;
+			default:
+				file << " ";
+				break;
+			}
+		}
+		file << "\n";
+	}
+	*/
 	file.close();
 }
 
@@ -247,8 +274,8 @@ bool MapReader::createGrid(std::string filename, Grid * grid)
 	grid->pMapGoal.y += pOffset.y;
 
 	//Flip y coordinates
-	grid->pMapStart.y = abs(grid->pMapStart.y - m_pMapSize.y);
-	grid->pMapGoal.y = abs(grid->pMapGoal.y - m_pMapSize.y);
+	//grid->pMapStart.y = abs(grid->pMapStart.y - m_pMapSize.y);
+	//grid->pMapGoal.y = abs(grid->pMapGoal.y - m_pMapSize.y);
 
 	//Convert map coordinates into grid coordinates
 	grid->pGridStart.x = (floor(grid->pMapStart.x / m_iCellSize));
