@@ -6,11 +6,14 @@
 #include "MapReader.h"
 #include "AStar.h"
 #include "FollowPath.h"
+#include <random>
 
 int main(int argc, char **argv)
 {
+	std::srand((unsigned)time(NULL));
+
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader(200,1);		//Create grid using map file
+	MapReader mapReader(150,2);		//Create grid using map file
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
@@ -25,7 +28,7 @@ int main(int argc, char **argv)
 	pathFinder.addTraversable(1, 0);
 	//pathFinder.setMovementCost(6.0f, 12.0f);
 	pathFinder.setMovementCost(5.0f, 10.0f);
-	pathFinder.getPath(grid_map.pGridStart, grid_map.pGridGoal, &grid_map, &viPath);
+	//pathFinder.generatePath(grid_map.pMapStart, grid_map.pMapGoal, &grid_map, &viPath);
 
 	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");
 

@@ -29,7 +29,7 @@
       <Filter>Source\PathPlanner</Filter>
     </ClCompile>
     <ClCompile Include="src\FollowPath.cpp">
-      <Filter>Source</Filter>
+      <Filter>Source\PathPlanner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

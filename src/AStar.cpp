@@ -68,7 +68,9 @@ std::vector<int> AStar::getAdjacent(unsigned int index)
 
 	//Set Nodes parent
 	for (auto it = viAdjacentNodes.begin(); it != viAdjacentNodes.end(); ++it) {
-		m_grid->vNodes.at((*it))->m_ptrParent = m_grid->vNodes.at(index);	//Set parent
+		if (m_grid->vNodes.at((*it))->m_ptrParent == NULL) {
+			m_grid->vNodes.at((*it))->m_ptrParent = m_grid->vNodes.at(index);	//Set parent
+		}
 		calcScore(m_grid->vNodes.at((*it)));								//Calculate score
 	}
 
@@ -82,7 +84,7 @@ bool AStar::isTraversable(unsigned int index)
 	for (auto it = m_vuiTraversable.begin(); it != m_vuiTraversable.end(); ++it) {
 		if ((*it) == iState) {			//Node state is traversable/Not an obstacle
 			if (!isInClosed(index)) {	//Not in the closed list
-				if (!isInOpen(index)) {	//In the open list
+				if (!isInOpen(index)) {	//Not the open list
 					return true;
 				}
 			}
@@ -162,13 +164,35 @@ bool AStar::savePath(unsigned int index, std::vector<int>* path)
 {
 	//Path from child node all the way to the root node/goal node
 	path->clear();	//Ensure vector is empty
+	
 	std::shared_ptr<Node> node = m_grid->vNodes.at(index);
-	while (node->m_ptrParent != nullptr) {
-		node->m_iState = 3;
-		path->push_back(node->m_iIndex);
+	int iCounter = 0;
+	std::cout << "Saving Path\n";
+	while (node->m_ptrParent != NULL && node->m_iIndex != m_iRootIndex) {
 		node = node->m_ptrParent;
+		path->push_back(node->m_iIndex);
+		
+		node->m_iState = 3;	//Node state is now a path
+		iCounter++;
+		if (iCounter >= m_grid->vNodes.size() - 1) {
+			path->clear();	//Ensure vector is empty
+			return false;
+		}
+	}
+
+	////Reset node parent pointers
+	for (auto it = m_grid->vNodes.begin(); it != m_grid->vNodes.end(); ++it) {
+		if ((*it)->m_ptrParent != NULL) {
+			(*it)->m_ptrParent = NULL;
+		}
+		if ((*it)->m_iState == 3) {
+			(*it)->m_iState = 0;
+		}
 	}
 	std::reverse(path->begin(), path->end());	//First element becomes starting node last is goal
+	path->erase(path->begin());	//Remove starting node/node robot is currently on
+	
+	
 	return true;
 }
 
@@ -214,22 +238,29 @@ std::vector<unsigned int> AStar::getTraversable()
 	return m_vuiTraversable;
 }
 
-bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path)
+bool AStar::generatePath(Point start, Point goal, Grid * grid, std::vector<int>* path)
 {
 	std::cout << "Finding Path\n ";
 	std::cout << "Start:" << start.x << " " << start.y << " Goal: " << goal.x << " " << goal.y << "\n";
 	//std::cout << "Get Path\n";
+	
 	if (!grid->vNodes.empty()) {
 		m_vuiOpen.clear();
 		m_vuiClosed.clear();
-
+		path->clear();
 		m_grid = grid;
-		m_iRootIndex = getIndex(start.x,start.y,grid->uiWidth);
-		m_iGoalIndex = getIndex(goal.x, goal.y, grid->uiWidth);
-		m_pStart = start;
-		m_pGoal = goal;
 
-		//Add adjacent nodes
+		//Convert map coordinates into grid coordinates
+		m_pStart.x = floor(start.x / grid->iCellSize);
+		m_pStart.y = floor(start.y / grid->iCellSize);
+		m_pGoal.x = floor(goal.x / grid->iCellSize);
+		m_pGoal.y = floor(goal.y / grid->iCellSize);
+
+		m_iRootIndex = getIndex(m_pStart.x, m_pStart.y, grid->uiWidth);
+		m_iGoalIndex = getIndex(m_pGoal.x, m_pGoal.y, grid->uiWidth);
+		
+		
+		//Add root node
 		std::vector<int> vuiAdjacent;
 		vuiAdjacent = getAdjacent(m_iRootIndex);
 		//Add adjacent nodes to open list
@@ -237,7 +268,7 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 		vuiAdjacent.clear();
 		m_vuiClosed.push_back(m_iRootIndex);	//Add Root node to closed list
 
-		//Traverse grid to find shortest path to goal node
+												//Traverse grid to find shortest path to goal node
 		while (!m_vuiOpen.empty()) {
 			//Find the node with the lowest score
 			int iChosenNode = getLowestScore();	//Node with the lowest score
@@ -255,21 +286,19 @@ bool AStar::getPath(Point start, Point goal, Grid * grid, std::vector<int>* path
 				std::cout << "Path found: Nodes: " << path->size() << "\n";
 				return true;
 			}
-			//Point coord = getCoord(iChosenNode,m_grid->uiWidth);
-			//std::cout << coord.x << " " << coord.y << "\n";
-			//std::cout << "OpenList: " << m_vuiOpen.size() << " ClosedList: " << m_vuiClosed.size() << "\n";
+
 			//Remove node from open and add to closed list
 			m_vuiClosed.push_back(iChosenNode);
 			for (int i = 0; i < m_vuiOpen.size(); i++) {
 				if (m_vuiOpen.at(i) == iChosenNode) {
-					m_vuiOpen.erase(m_vuiOpen.begin() +i);	//Remove node 
+					m_vuiOpen.erase(m_vuiOpen.begin() + i);	//Remove node 
 					break;
 				}
-				
+
 			}
 		}
 	}
-	//No Path found
-	std::cout << "No path found\n";
+	//std::cout << "No path found\n";
 	return false;
+
 }

@@ -7,7 +7,7 @@ class FollowPath : public ArAction // Class action inherits from ArAction
 {
 	enum State
 	{
-		Test,Loading,Idle,Rotating, Forward
+		Idle,NextNode,Rotating,Forward,GeneratePath
 	};
 
 private: //Odometry
@@ -19,47 +19,35 @@ private: //Odometry
 	double m_rw;	//Wheel radius of the robot
 	double m_t1, m_t2; // Wheel encoder counts
 
-	void simulateEncoders();
-
 	DWORD m_newTs, m_oldTs;
-	float m_fTravelled;			//Distance travelled
 
-	float m_fTargetDist;		//!< distance for robot to travel untile state is changed
-
+	void simulateEncoders();
 	void calcOdometry();
 private:
-	Grid* m_ptrGrid;
-	std::vector<int>* m_ptrviPath;	//Stores grid node indexes
+	Grid* m_ptrGrid;				//!< The grid map for used for planning paths
+	std::vector<int>* m_ptrviPath;	//!< Stores grid node indexes
+	std::vector<int> m_viVisited;	//!< Stores list of visited nodes by index
 private:
-	State m_state;
+	State m_state;				//!< FSM current state
 
-	Point m_pStartPos;
-	Point m_fDesiredPos;
+	Point m_pDesiredPos;		//!< Position of desired node
+	float m_fDesiredHeading;	//!< Heading towards desired node
+	bool m_bInitRotation;		//!< True if initial rotation has been done
 
-	bool m_bLeft;	//Turn direction if false then turn right
+	Point m_pGoalPos;			//!< Position of current goal/end of path
 
-	float m_fDesiredPosX;
-	float m_fDesiredPosY;
+	AStar m_pathFinder;		//!< Used to plan paths to random nodes on the grid
 
-	float m_fDesiredHeading;
-
-	bool m_bNodeReached;
-	bool m_bHeadingSet;
-	bool m_bNodeSet;		//Node to move towards has been set
-
-	float m_fInitialTh;
-
-	void init();
-
-	int rotate(int degrees);
+	float m_fSpeed;			//!< Robot max velocity
+	float m_fRotError;		//!< Used to check if desired heading is achieved
 public:
-	FollowPath(); //!< Constructor
-	virtual ~FollowPath() {}  //<! Destructor
+	FollowPath();				//!< Constructor
+	virtual ~FollowPath() {}	//<! Destructor
+
 	virtual ArActionDesired * fire(ArActionDesired d); // Body of the action
+
 	ArActionDesired desiredState; // Holds state of the robot that we wish to action
 
+	//! Set the grid for robot to use in path finding and a path for it to follow
 	void setPath(std::vector<int>* path, Grid* grid);
-	void setRobot(float x, float y, float th);
-
-	void moveTo(float x, float y);
 };

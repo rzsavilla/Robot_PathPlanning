@@ -34,5 +34,4 @@ protected:
 	double dState;		//Last position
 
 	float pos;
-
 };

@@ -17,7 +17,7 @@ SchedInfo: Current "_Sunday"
 SchedInfo: Current "_Thursday"
 SchedInfo: Current "_Tuesday"
 SchedInfo: Current "_Wednesday"
-Cairn: RobotHome -1710 -310 134.389302 "" ICON ""
+Cairn: RobotHome 965 -3023 134.389302 "" ICON ""
 Cairn: Goal 2539 -4553 0.000000 "" ICON "New Goal"
 LINES
 -2001 -2 3006 0

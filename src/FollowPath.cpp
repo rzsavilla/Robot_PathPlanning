@@ -30,18 +30,18 @@ void FollowPath::simulateEncoders()
 void FollowPath::calcOdometry()
 {
 	//Aria readings
-	m_fRX = myRobot->getX();
-	m_fRY = myRobot->getY();
+	//m_fRX = myRobot->getX();
+	//m_fRY = myRobot->getY();
 	m_fRTh = myRobot->getTh(); // (in degrees)
 
 	simulateEncoders();
-	//m_fTh = normAngle(myRobot->getTh());
+
 	double dist = 0.0f;
 	double dx = 0.0f;
 	double dy = 0.0f;
 	double dTh = 0.0f;
 
-	float fRadians = (m_fRTh) * PI / 180.0f;
+	float fRadians = (m_fRTh) * PI / 180.0f;	//Convert to radians
 
 	dx = cos(fRadians) * (m_t1 + m_t2) * ((PI * m_rw) / m_tr);
 	dy = sin(fRadians) * (m_t1 + m_t2) * ((PI * m_rw) / m_tr);
@@ -49,46 +49,17 @@ void FollowPath::calcOdometry()
 	if (myRobot->getVel() > 0) {
 		m_fX += dx;
 		m_fY += dy;
-		m_fTravelled += abs(dx);
-		m_fTravelled += abs(dy);
 	}
-	//std::cout << dx << " " << dy << "\n";
-	//std::cout << m_fX << " " << m_fY << " " << m_fTh <<  "\n";
-}
-
-void FollowPath::init()
-{
-	////////////	Generate Grid Map	///////////
-	//MapReader mapReader;		//Create grid using map file
-	//std::string sMapResLoc = "resources/maps/";
-	//std::string sGridResLoc = "resources/grids/";
-	//std::string sMapName = "Mine";
-
-	//std::cout << "Generating Grid\n";
-	//std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
-	//mapReader.createGrid(sMapFile, m_ptrGrid, 100);
-	//
-
-	//m_pStartPos = mapReader.m_pStartPos;
-
-	//AStar pathFinder;
-	//pathFinder.addTraversable(1, 0);
-	//pathFinder.getPath(mapReader.m_pStartPos, mapReader.m_pGoalPos, m_ptrGrid, m_ptrviPath);
-
-	//mapReader.saveGrid(m_ptrGrid, "resources/grids/" + sMapName + ".txt");
-}
-
-int FollowPath::rotate(int degrees)
-{
-	m_fTh += degrees;
-	while (m_fTh <   -180) m_fTh += 360;
-	while (m_fTh > 180) m_fTh -= 360;
-	return m_fTh;
 }
 
 FollowPath::FollowPath() : ArAction("FollowPath")
 {
-	m_state = State::Idle;
+	m_fSpeed = 200.0f;
+	m_pathFinder.addTraversable(2, 0, 3);
+	m_pathFinder.setMovementCost(5.0f, 10.0f);
+	m_bInitRotation = false;
+
+	m_fRotError = 2.0f;
 }
 
 ArActionDesired * FollowPath::fire(ArActionDesired d)
@@ -101,55 +72,122 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 
 	calcOdometry();
 
-	float fOffset = 2.0f;
-	float fPositionOffset = 50.0f;
-	float fDistance = 0;
+	//Distance to the closest object
+	float fNearest = myRobot->getClosestSonarRange(1.0f, 359.0f);
+
+	std::cout << "State: ";
 	switch (m_state)
 	{
-	case Idle: {
+	case State::Idle: {
+		std::cout << "Idle\n";
+		if (m_ptrGrid != NULL) {
+			if (!m_ptrviPath->empty()) {
+				m_state = State::NextNode;		//Follow Path
+			}
+			else {
+				//No path to follow
+				m_bInitRotation = false;		//Initial rotation required for next path planned
+				m_state = State::GeneratePath;	//Choose random node and plan path
+			}
+		}
+		break;
+	}
+	case State::NextNode: {
+		/*
+			Sets which node to move towards when following a path
+		*/
+		std::cout << "Next Node\n";
 		if (!m_ptrviPath->empty()) {
-			//Select node and set nodes position as target position
-			m_fDesiredPos = m_ptrGrid->vNodes.at(m_ptrviPath->front())->m_pMapCoord;
+			//Set Node to move towards
+			m_pGoalPos = m_ptrGrid->vNodes.at(m_ptrviPath->back())->m_pMapCoord;		//Goal position last node in path
+			m_pDesiredPos = m_ptrGrid->vNodes.at(m_ptrviPath->front())->m_pMapCoord;	//Position of next node in path
+			//Calculate heading required to move towards node
+			m_fDesiredHeading = myRobot->findAngleTo(ArPose(m_pDesiredPos.x, m_pDesiredPos.y));
 
-			m_ptrviPath->erase(m_ptrviPath->begin());	//Remove node
-			m_state = Forward;
+			if (m_bInitRotation) {
+				m_state = State::Forward;	//Move towards node
+			}
+			else {
+				m_state = State::Rotating;	//Perform initial rotation
+			}
 		}
 		else {
-			std::cout << "Goal Reached\n";
-		}
-		break;
-	}
-	case FollowPath::Forward: {
-		m_fDesiredHeading = myRobot->findAngleTo(ArPose(m_fDesiredPos.x, m_fDesiredPos.y));	//Update Heading
-		myRobot->setHeading(m_fDesiredHeading);	//Turn towards heading
-		//Move Forward
-		desiredState.setVel(200);
-
-		//Check if desired position has been reached
-		fDistance = sqrt(pow(m_fDesiredPos.x - m_fX, 2) + pow(m_fDesiredPos.y - m_fY, 2));
-		if (abs(fDistance) < 200) {
 			m_state = State::Idle;
 		}
-
-		std::cout << "Forward: " << myRobot->getVel() << "\n";
-		std::cout << fDistance << " " << m_fX << " " << m_fY << " " << m_fDesiredPos.x << " " << m_fDesiredPos.y << "\n";
 		break;
 	}
-	case Loading: {
-		init();
+	case State::Rotating: {
+		/*
+		Ensures robot is facing the path before moving
+		preventing crash from movement and turning at the same time
+		*/
+		std::cout << "Rotating\n";
+		//Stop the robot and apply rotation
+		desiredState.setVel(0.0f);			//Stop
+		desiredState.setHeading(m_fDesiredHeading);		
 		
-		m_state = State::Idle;
-		//Position robot onto map space
-		myRobot->setEncoderTransform(ArPose(m_ptrGrid->pMapStart.x, m_ptrGrid->pMapStart.y, m_ptrGrid->fStartTh));
+		//Check if desired heading has been reached
+		if (m_fTh > m_fDesiredHeading - m_fRotError && m_fTh < m_fDesiredHeading + m_fRotError) {
+			m_bInitRotation = true;		//Initial rotation has been achieved
+			m_state = State::Forward;	//Robot can now move forward
+		}
+		break;
+	}
+	case State::Forward: {
+		std::cout << "Forward\n";
+		m_fDesiredHeading = myRobot->findAngleTo(ArPose(m_pDesiredPos.x, m_pDesiredPos.y));	//Update Heading
+		//Turn towards heading
+		desiredState.setHeading(m_fDesiredHeading);	
+		//Move Forward
+		desiredState.setVel(m_fSpeed);
+
+		//Check if desired position has been reached
+		float fDistance = sqrt(pow(m_pDesiredPos.x - m_fX, 2) + pow(m_pDesiredPos.y - m_fY, 2));
+		if (abs(fDistance) < m_fSpeed) {
+			m_state = State::NextNode;					//Node Reached
+			m_ptrviPath->erase(m_ptrviPath->begin());	//Remove node
+		}
+		break;
+	}
+	case State::GeneratePath: {
+		std::cout << "GeneratingPath\n";
+
+		//Generate random index to determine node to move towards on the grid.
+		int iIndex = rand() % (m_ptrGrid->vNodes.size() - 1);
+		Point pNewGoalPos = m_ptrGrid->vNodes.at(iIndex)->m_pMapCoord;
+
+		bool bVisited = false;
+		//Check if node has been visited
+		for (auto it = m_viVisited.begin(); it != m_viVisited.end(); ++it) {
+			if ((*it) == iIndex) {
+				bVisited = true;
+				break;
+			}
+		}
+		int iCurrIndex = getIndex(floor(m_fX / m_ptrGrid->iCellSize), floor(m_fY / m_ptrGrid->iCellSize), m_ptrGrid->uiWidth);
+		std::cout << "iC:" << iCurrIndex << "Index: " << iIndex << "\n";
+	
+		if (!bVisited) {
+			//Calculate distance between current position and random goal position
+			float fDist = sqrt(pow(pNewGoalPos.x - m_fX, 2) + pow(pNewGoalPos.y - m_fY, 2));
+			if (fDist > 1000.0f) {
+				if (m_pathFinder.generatePath(Point(m_fX, m_fY), pNewGoalPos, m_ptrGrid, m_ptrviPath)) {
+					//Save path
+					m_state = State::Idle;
+					m_viVisited.push_back(iIndex);
+				}
+			}
+		}
 		break;
 	}
 	default:
 		break;
 	}
 
-	//std::cout << "X:" << m_fX << " Y:" << m_fY << " th:" << m_fTh << " Tr:" << m_fTravelled <<"\n";
-	//std::cout << m_fDesiredPos.x << " " << m_fDesiredPos.y << " " << fDistance << " " << m_fDesiredHeading << "\n";
-
+	std::cout << "Current Pos X:" << m_fX << " Y:" << m_fY << " th:" << m_fTh << " Vel:" << myRobot->getVel() << "\n";
+	std::cout << "Next    Pos X:" << m_pDesiredPos.x << " Y:" << m_pDesiredPos.y << " th:" << m_fDesiredHeading << "\n";
+	std::cout << "Goal    Pos X:" << m_pGoalPos.x << " Y:" << m_pGoalPos.y << " RemainingNodes:" << m_ptrviPath->size() << "\n";
+	std::cout << "Closest Object: " << fNearest << "\n";
 	return &desiredState;
 }
 
@@ -158,42 +196,15 @@ void FollowPath::setPath(std::vector<int>* path, Grid * grid)
 	m_ptrviPath = path;
 	m_ptrGrid = grid;
 
+	m_state = State::GeneratePath;
+
 	m_l = 425.0; // Width of a P3 DX in mm
 	m_rw = 95.0; // Wheel radius in mm
 	m_tr = 360.0; // Number of odemetry clicks for a full circle
 
 	m_fX = m_ptrGrid->pMapStart.x;
 	m_fY = m_ptrGrid->pMapStart.y;
-	//m_fTh = m_ptrGrid->fStartTh;
-	m_fTh = 0.0f;
 
 	myRobot->setEncoderTransform(ArPose(m_ptrGrid->pMapStart.x, m_ptrGrid->pMapStart.y, m_ptrGrid->fStartTh));
-
-}
-
-void FollowPath::setRobot(float x, float y, float th)
-{
-	/*m_fTh = myRobot->getTh();
-	m_fX = myRobot->getX() + x;
-	m_fY = myRobot->getY() + y;
-
-	m_fTh = myRobot->getTh();
-	m_fTh = (int)(m_fTh + th) % 360;
-	if (m_fTh > 180) m_fTh -= 180;*/
-}
-
-void FollowPath::moveTo(float x, float y)
-{
-	//Find angle towards point
-	float fPosX = 0.0;
-	float fPosY = 0.0;
-	float fThe = 0.0f;
-
-	float fAngleDiff;
-
-	float dot = fPosX * x + fPosY * y;
-	float fMag1 = sqrt(pow(fPosX, 2) + pow(fPosY, 2));
-	float fMag2 = sqrt(pow(x, 2) + pow(y, 2));
-
-	fAngleDiff = cos(dot / (fMag1 * fMag2));
+	m_bInitRotation = false;
 }

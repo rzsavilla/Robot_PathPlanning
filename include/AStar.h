@@ -50,4 +50,5 @@ public:
 	std::vector<unsigned int> getTraversable();
 
 	bool getPath(Point start, Point goal, Grid* grid, std::vector<int>* path);
+	bool generatePath(Point start, Point goal, Grid* grid, std::vector<int>* path);
 };
