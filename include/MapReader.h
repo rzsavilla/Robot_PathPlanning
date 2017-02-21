@@ -6,18 +6,6 @@
 #include "Node.h"
 #include "Grid.h"
 
-//struct Cell {
-//	Cell() {};
-//	Cell(int index, Cell* parent) { 
-//		this->index = index;
-//		ptrParent = parent;
-//	};
-//	int index;
-//	int iState;
-//	float fScore;
-//	Cell* ptrParent;
-//};
-
 struct Line {
 	Line(Point start, Point end) {
 		this->start = start;
@@ -34,24 +22,26 @@ struct Line {
 	Point end;
 };
 
+/**
+* Generates a 2D grid using data from a Mapper3 map file.
+*/
 class MapReader {
 private:
 	Grid* m_grid;
-	void placeLine(Point start, Point end);
+	void placeLine(Point start, Point end);	//!< Mark grid node as untraversable if a line is within that cell
+
+	//! Padding radius of extra untraversable nodes around an obstacle
 	int addPadding(std::shared_ptr<Node> node, int MNeighbourhood);
 
+	Point m_pMapSize;	//!< Width and height of the map
 
-	Point m_pMapSize;
-
-	int m_iCellSize;
-	int m_iPadding;
+	int m_iCellSize;	//!< Size of each cell/node in the grid
+	int m_iPadding;		//!< Radius of untraversable cells around an obstacle
 
 	float m_fMoveCost;	//Horizontal and vertical movement cost
 	float m_fDMoveCost;	//Diagonal Movement cost
 public:
-	MapReader(int cellSize,int padding);
-	void saveGrid(Grid* grid, std::string file);
-	bool createGrid(std::string filename, Grid* grid);
-
-	
+	MapReader(int cellSize,int padding);				//!< Constructor
+	void saveGrid(Grid* grid, std::string file);		//!< Save grid as a text file
+	bool createGrid(std::string filename, Grid* grid);	//!< Create grid by loading map file
 };

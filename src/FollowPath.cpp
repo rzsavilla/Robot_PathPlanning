@@ -54,12 +54,15 @@ void FollowPath::calcOdometry()
 
 FollowPath::FollowPath() : ArAction("FollowPath")
 {
-	m_fSpeed = 200.0f;
+	m_fSpeed = 200.0f;	//Set to max speed 0.2m/s
 	m_pathFinder.addTraversable(2, 0, 3);
 	m_pathFinder.setMovementCost(5.0f, 10.0f);
 	m_bInitRotation = false;
 
 	m_fRotError = 2.0f;
+	m_fMinRandGoal = 500.0f;
+
+	m_state = State::Idle;
 }
 
 ArActionDesired * FollowPath::fire(ArActionDesired d)
@@ -124,6 +127,7 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 		std::cout << "Rotating\n";
 		//Stop the robot and apply rotation
 		desiredState.setVel(0.0f);			//Stop
+		m_fDesiredHeading = myRobot->findAngleTo(ArPose(m_pDesiredPos.x, m_pDesiredPos.y));
 		desiredState.setHeading(m_fDesiredHeading);		
 		
 		//Check if desired heading has been reached
@@ -143,6 +147,7 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 
 		//Check if desired position has been reached
 		float fDistance = sqrt(pow(m_pDesiredPos.x - m_fX, 2) + pow(m_pDesiredPos.y - m_fY, 2));
+		m_fDist = fDistance;
 		if (abs(fDistance) < m_fSpeed) {
 			m_state = State::NextNode;					//Node Reached
 			m_ptrviPath->erase(m_ptrviPath->begin());	//Remove node
@@ -170,7 +175,8 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 		if (!bVisited) {
 			//Calculate distance between current position and random goal position
 			float fDist = sqrt(pow(pNewGoalPos.x - m_fX, 2) + pow(pNewGoalPos.y - m_fY, 2));
-			if (fDist > 1000.0f) {
+			if (fDist > m_fMinRandGoal) {
+				//Plan path
 				if (m_pathFinder.generatePath(Point(m_fX, m_fY), pNewGoalPos, m_ptrGrid, m_ptrviPath)) {
 					//Save path
 					m_state = State::Idle;
@@ -185,18 +191,16 @@ ArActionDesired * FollowPath::fire(ArActionDesired d)
 	}
 
 	std::cout << "Current Pos X:" << m_fX << " Y:" << m_fY << " th:" << m_fTh << " Vel:" << myRobot->getVel() << "\n";
-	std::cout << "Next    Pos X:" << m_pDesiredPos.x << " Y:" << m_pDesiredPos.y << " th:" << m_fDesiredHeading << "\n";
-	std::cout << "Goal    Pos X:" << m_pGoalPos.x << " Y:" << m_pGoalPos.y << " RemainingNodes:" << m_ptrviPath->size() << "\n";
-	std::cout << "Closest Object: " << fNearest << "\n";
+	std::cout << "Next    Pos X:" << m_pDesiredPos.x << " Y:" << m_pDesiredPos.y << " th:" << m_fDesiredHeading << " Dist:" << m_fDist << "\n";
+	std::cout << "Goal    Pos X:" << m_pGoalPos.x << " Y:" << m_pGoalPos.y << " RemainingNodes:" << m_ptrviPath->size() << " Closest Object: " << fNearest << "\n";
 	return &desiredState;
 }
 
 void FollowPath::setPath(std::vector<int>* path, Grid * grid)
 {
+	std::srand((unsigned)time(NULL));
 	m_ptrviPath = path;
 	m_ptrGrid = grid;
-
-	m_state = State::GeneratePath;
 
 	m_l = 425.0; // Width of a P3 DX in mm
 	m_rw = 95.0; // Wheel radius in mm

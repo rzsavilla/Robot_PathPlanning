@@ -40,6 +40,8 @@ private:
 
 	float m_fSpeed;			//!< Robot max velocity
 	float m_fRotError;		//!< Used to check if desired heading is achieved
+	float m_fMinRandGoal;	//!< Minumum distance from next random goal position
+	float m_fDist;			//!< Distance from next node
 public:
 	FollowPath();				//!< Constructor
 	virtual ~FollowPath() {}	//<! Destructor

@@ -15,10 +15,6 @@ void MapReader::placeLine(Point start, Point end)
 	http://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
 	*/
 
-	//Flip y axis so origin (0,0) is top left
-	//start.y = abs(start.y - m_pMapSize.y);
-	//end.y = abs(end.y - m_pMapSize.y);
-
 	//Calculate distance from start to end
 	Point fDiff;
 	if (start.x >= end.x) fDiff.x = start.x - end.x;
@@ -136,33 +132,7 @@ void MapReader::saveGrid(Grid * grid, std::string filename)
 		}
 		file << "\n";
 	}
-	/*
-	for (int y = 0 ; y < grid->uiHeight; y++) {
-		for (int x = 0; x < grid->uiWidth; x++) {
-			int iIndex = getIndex(x, y, grid->uiWidth);
-			int i = grid->vNodes.at(getIndex(x, y, grid->uiWidth))->m_iState;
-			switch (i)
-			{
-			case 0:
-				file << " ";
-				break;
-			case 1:
-				file << "#";
-				break;
-			case 2:
-				file << "@";
-				break;
-			case 3:
-				file << "+";
-				break;
-			default:
-				file << " ";
-				break;
-			}
-		}
-		file << "\n";
-	}
-	*/
+
 	file.close();
 }
 
@@ -272,10 +242,6 @@ bool MapReader::createGrid(std::string filename, Grid * grid)
 	grid->pMapStart.y += pOffset.y;
 	grid->pMapGoal.x += pOffset.x;
 	grid->pMapGoal.y += pOffset.y;
-
-	//Flip y coordinates
-	//grid->pMapStart.y = abs(grid->pMapStart.y - m_pMapSize.y);
-	//grid->pMapGoal.y = abs(grid->pMapGoal.y - m_pMapSize.y);
 
 	//Convert map coordinates into grid coordinates
 	grid->pGridStart.x = (floor(grid->pMapStart.x / m_iCellSize));

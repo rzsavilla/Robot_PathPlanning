@@ -1,4 +1,4 @@
-#include "..\include\AStar.h"
+#include "AStar.h"
 
 std::vector<int> AStar::getAdjacent(unsigned int index)
 {
@@ -143,7 +143,7 @@ float AStar::calcScore(std::shared_ptr<Node> node)
 
 		node->m_fScoreG = node->m_ptrParent->m_fScoreG + fCost;
 		/*
-		Heuristics
+		Heuristics Forumula
 		http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 		*/
 		//This nodes grid coordinates
@@ -166,27 +166,18 @@ bool AStar::savePath(unsigned int index, std::vector<int>* path)
 	path->clear();	//Ensure vector is empty
 	
 	std::shared_ptr<Node> node = m_grid->vNodes.at(index);
-	int iCounter = 0;
 	std::cout << "Saving Path\n";
 	while (node->m_ptrParent != NULL && node->m_iIndex != m_iRootIndex) {
 		node = node->m_ptrParent;
 		path->push_back(node->m_iIndex);
 		
 		node->m_iState = 3;	//Node state is now a path
-		iCounter++;
-		if (iCounter >= m_grid->vNodes.size() - 1) {
-			path->clear();	//Ensure vector is empty
-			return false;
-		}
 	}
 
 	////Reset node parent pointers
 	for (auto it = m_grid->vNodes.begin(); it != m_grid->vNodes.end(); ++it) {
 		if ((*it)->m_ptrParent != NULL) {
 			(*it)->m_ptrParent = NULL;
-		}
-		if ((*it)->m_iState == 3) {
-			(*it)->m_iState = 0;
 		}
 	}
 	std::reverse(path->begin(), path->end());	//First element becomes starting node last is goal
@@ -256,9 +247,9 @@ bool AStar::generatePath(Point start, Point goal, Grid * grid, std::vector<int>*
 		m_pGoal.x = floor(goal.x / grid->iCellSize);
 		m_pGoal.y = floor(goal.y / grid->iCellSize);
 
+		//Get grid index
 		m_iRootIndex = getIndex(m_pStart.x, m_pStart.y, grid->uiWidth);
 		m_iGoalIndex = getIndex(m_pGoal.x, m_pGoal.y, grid->uiWidth);
-		
 		
 		//Add root node
 		std::vector<int> vuiAdjacent;
@@ -268,7 +259,7 @@ bool AStar::generatePath(Point start, Point goal, Grid * grid, std::vector<int>*
 		vuiAdjacent.clear();
 		m_vuiClosed.push_back(m_iRootIndex);	//Add Root node to closed list
 
-												//Traverse grid to find shortest path to goal node
+		//Traverse grid to find shortest path to goal node
 		while (!m_vuiOpen.empty()) {
 			//Find the node with the lowest score
 			int iChosenNode = getLowestScore();	//Node with the lowest score

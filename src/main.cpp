@@ -10,10 +10,9 @@
 
 int main(int argc, char **argv)
 {
-	std::srand((unsigned)time(NULL));
-
 	//////////	Generate Grid Map	///////////
-	MapReader mapReader(150,2);		//Create grid using map file
+	//MapReader mapReader(100,2);		//Create grid using map file
+	MapReader mapReader(250, 1);
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
@@ -25,13 +24,16 @@ int main(int argc, char **argv)
 	
 	std::vector<int> viPath;	//Stores node indexes
 	AStar pathFinder;
-	pathFinder.addTraversable(1, 0);
+	pathFinder.addTraversable(1, 0);	//Traversable node states 0
 	//pathFinder.setMovementCost(6.0f, 12.0f);
-	pathFinder.setMovementCost(5.0f, 10.0f);
-	//pathFinder.generatePath(grid_map.pMapStart, grid_map.pMapGoal, &grid_map, &viPath);
+	//pathFinder.setMovementCost(5.0f, 10.0f);
+	pathFinder.setMovementCost(1.0f, 2.0f);	//63
+	//pathFinder.setMovementCost(5.0f, 15.0f);
+	//pathFinder.setMovementCost(10.0f, 5.0f);
+	pathFinder.generatePath(grid_map.pMapStart, grid_map.pMapGoal, &grid_map, &viPath);
 
 	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");
-
+	std::cout << viPath.size() << "\n";
 	//return 0;
 
 	Aria::init();
@@ -88,25 +90,17 @@ int main(int argc, char **argv)
 	// add a set of actions that combine together to effect the wander behavior
 	ArActionStallRecover recover;
 	ArActionBumpers bumpers;
-	FSM wanderAndAvoid;
-	Wander wander;
-	Avoid avoid;
-	follow follow;
 
 	FollowPath followPath;
-	
 
 	///////////	ARIA	///////////
 	robot.addAction(&recover, 100);
 	robot.addAction(&bumpers, 75);
-	//robot.addAction(&avoid, 50);
 	robot.addAction(&followPath, 40);
-	//robot.addAction(&follow, 40);
-	//robot.addAction(&wander, 1);
 
+	//Set a path that follows maps start and goal posistions and the grid for path planning
 	followPath.setPath(&viPath, &grid_map);
 	
-  
 	// wait for robot task loop to end before exiting the program
 	robot.waitForRunExit();
   
