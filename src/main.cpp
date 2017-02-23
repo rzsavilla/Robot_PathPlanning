@@ -1,40 +1,35 @@
 #include "Aria.h"
-#include "wanderAndAvoid.h"
-#include "wander.h"
-#include "avoid.h"
-#include "follow.h"
 #include "MapReader.h"
 #include "AStar.h"
 #include "FollowPath.h"
-#include <random>
 
 int main(int argc, char **argv)
 {
 	//////////	Generate Grid Map	///////////
-	//MapReader mapReader(100,2);		//Create grid using map file
-	MapReader mapReader(250, 1);
+	int iPadding = 2;
+	int iCellSize = 150;
+
+	MapReader mapReader(iCellSize, iPadding);
 	std::string sMapResLoc = "resources/maps/";
 	std::string sGridResLoc = "resources/grids/";
 	std::string sMapName = "Mine";
 
 	Grid grid_map;
-	std::cout << "Generating Grid\n";
+	std::cout << "Generating Grid for: " << sMapName << "\n";
+	std::cout << "CellSize: " << iCellSize << " Padding: " << iPadding << "\n";
 	std::string sMapFile = (sMapResLoc.append(sMapName)).append(".map");
 	mapReader.createGrid(sMapFile, &grid_map);
 	
+	////////// Initial A* Path Planning /////////////////
+	//Initial path plan for given start and goal position in map file
 	std::vector<int> viPath;	//Stores node indexes
 	AStar pathFinder;
-	pathFinder.addTraversable(1, 0);	//Traversable node states 0
-	//pathFinder.setMovementCost(6.0f, 12.0f);
-	//pathFinder.setMovementCost(5.0f, 10.0f);
-	pathFinder.setMovementCost(1.0f, 2.0f);	//63
-	//pathFinder.setMovementCost(5.0f, 15.0f);
-	//pathFinder.setMovementCost(10.0f, 5.0f);
+	pathFinder.addTraversable(1, 0);			//Traversable node states 0
+	pathFinder.setMovementCost(1.0f, 2.0f);
+
 	pathFinder.generatePath(grid_map.pMapStart, grid_map.pMapGoal, &grid_map, &viPath);
 
-	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");
-	std::cout << viPath.size() << "\n";
-	//return 0;
+	mapReader.saveGrid(&grid_map, sGridResLoc + sMapName + ".txt");	//Save the grid to a text file
 
 	Aria::init();
 	ArArgumentParser argParser(&argc, argv);

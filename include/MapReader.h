@@ -6,6 +6,7 @@
 #include "Node.h"
 #include "Grid.h"
 
+//Represents data to create a line a start and an end
 struct Line {
 	Line(Point start, Point end) {
 		this->start = start;
@@ -24,6 +25,7 @@ struct Line {
 
 /**
 * Generates a 2D grid using data from a Mapper3 map file.
+* Essentially a grid overlay
 */
 class MapReader {
 private:

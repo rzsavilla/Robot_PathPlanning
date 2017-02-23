@@ -3,6 +3,12 @@
 #include "MapReader.h"	//Creates grid file
 #include "AStar.h"		//Pathfinder
 
+/*
+	Uses FSM to control robot behaviour
+	Robot will follow a given path, if no path is provided it will choose
+	a random node, calculate a path towards it and move.
+*/
+
 class FollowPath : public ArAction // Class action inherits from ArAction
 {
 	enum State

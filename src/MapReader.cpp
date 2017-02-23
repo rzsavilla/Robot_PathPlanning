@@ -24,14 +24,13 @@ void MapReader::placeLine(Point start, Point end)
 	else fDiff.y = end.y - start.y;
 
 	float fDistance = sqrt(pow(fDiff.x, 2) + pow(fDiff.y, 2));
-	float fDistIncrement = m_iCellSize / 4;
+	float fDistIncrement = m_iCellSize / 4;	//Reduce point checking into 1/4 for each cell
 	float dt = 0;
 	
-
-	Point p;
+	//Loop whilst end of line has not been reached
 	while (dt <= fDistance) {
 		float f = dt/ fDistance;
-		Point pLinePoint;
+		Point pLinePoint;			// Point on the line
 		if (start.x > end.x) 
 			pLinePoint.x = (start.x - (f * fDiff.x));
 		else 
@@ -69,6 +68,7 @@ int MapReader::addPadding(std::shared_ptr<Node> node, int MNeighbourhood)
 	int startY = y - RangeY;
 	int endX = x + RangeX;
 	int endY = y + RangeY;
+
 	//Check if within map
 	if (startX < 0) startX = 0;
 	if (startY < 0) startY = 0;
@@ -79,6 +79,7 @@ int MapReader::addPadding(std::shared_ptr<Node> node, int MNeighbourhood)
 	if (endX > m_grid->uiWidth - 1) endX = m_grid->uiWidth - 1;
 	if (endY > m_grid->uiHeight - 1) endY = m_grid->uiHeight - 1;
 
+	//Iterate through neighbouring cells
 	for (int y = startY; y <= endY; y++) {
 		for (int x = startX; x <= endX; x++) {
 			int index = getIndex(x, y, m_grid->uiWidth);
@@ -89,7 +90,6 @@ int MapReader::addPadding(std::shared_ptr<Node> node, int MNeighbourhood)
 	}
 	return 0;
 }
-
 
 MapReader::MapReader(int cellSize, int padding)
 {

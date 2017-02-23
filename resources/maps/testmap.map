@@ -1,8 +1,8 @@
 2D-Map
 Resolution: 0
 LineMinPos: 0 0
-LineMaxPos: 10000 10000
-NumLines: 4
+LineMaxPos: 10134 10000
+NumLines: 5
 LinesAreSorted: true
 MapInfo: DockType "Name=Dock" "Label=Dock" "NameRequired=1" "Color0=0xffff00" "Color1=0x000000" "Color2=0x000000" "Heading=Required"
 MapInfo: GoalType "Name=Goal" "Label=Goal" "NameRequired=1" "Color0=0x008080" "Color1=0x00ffff" "Color2=0x008080"
@@ -17,11 +17,12 @@ SchedInfo: Current "_Sunday"
 SchedInfo: Current "_Thursday"
 SchedInfo: Current "_Tuesday"
 SchedInfo: Current "_Wednesday"
-Cairn: Goal 1661 8000 0.000000 "" ICON "X"
-Cairn: RobotHome 7629 8000 0.000000 "" ICON ""
+Cairn: RobotHome 1035 8912 0.000000 "" ICON ""
+Cairn: Goal 8104 1825 0.000000 "" ICON "X"
 LINES
-0 0 0 10000
-0 10000 10000 10000
-10000 0 0 0
-10000 0 10000 10000
+0 0 57 10000
+0 9942 10000 10000
+7465 8285 1947 3092
+10000 0 9975 9957
+10134 56 0 0
 DATA

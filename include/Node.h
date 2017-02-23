@@ -1,7 +1,8 @@
 #pragma once
-
 #include <memory>
-
+/*
+	Coordinate/Position x,y
+*/
 struct Point {
 	Point() {};
 	Point(float x, float y) { this->x = x, this->y = y; };
@@ -13,6 +14,7 @@ struct Point {
 	};
 };
 
+/* Represents a cell in the grid*/
 struct Node {
 	Node() {};
 	Node(int index, std::shared_ptr<Node> parent) {

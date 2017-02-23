@@ -12,27 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AStar.cpp" />
-    <ClCompile Include="src\avoid.cpp" />
-    <ClCompile Include="src\follow.cpp" />
     <ClCompile Include="src\FollowPath.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MapReader.cpp" />
-    <ClCompile Include="src\Node.cpp" />
-    <ClCompile Include="src\odometry.cpp" />
-    <ClCompile Include="src\wander.cpp" />
-    <ClCompile Include="src\wanderAndAvoid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AStar.h" />
-    <ClInclude Include="include\avoid.h" />
-    <ClInclude Include="include\follow.h" />
     <ClInclude Include="include\FollowPath.h" />
     <ClInclude Include="include\Grid.h" />
     <ClInclude Include="include\MapReader.h" />
     <ClInclude Include="include\Node.h" />
-    <ClInclude Include="include\odometry.h" />
-    <ClInclude Include="include\wander.h" />
-    <ClInclude Include="include\wanderAndAvoid.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3507C97E-72B0-4F6E-94B0-FAEC752703CC}</ProjectGuid>
@@ -72,8 +61,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(SolutionDir)lib\;$(LibraryPath)</LibraryPath>
     <ExecutablePath>.\bin;$(ExecutablePath);$(MSBuildFrameworkToolsPath32);$(MSBuildProgramFiles32)\Windows Kits\8.0\bin\x86</ExecutablePath>
-    <IncludePath>.\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
     <SourcePath>$(VCInstallDir)atlmfc\src\mfc;$(VCInstallDir)atlmfc\src\mfcm;$(VCInstallDir)atlmfc\src\atl;$(VCInstallDir)crt\src;.\src\ARIA</SourcePath>
+    <IncludePath>.\include;.\include\ARIA;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
